@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import type { Cryptocurrency, Watchlist, PriceAlert, PriceHistory, MutualFund, MutualFundHistory, FundWatchlist, CurrencyRate, Portfolio } from "@shared/schema";
+import type { Cryptocurrency, Watchlist, PriceAlert, PriceHistory, MutualFund, MutualFundHistory, FundWatchlist, CurrencyRate, Portfolio, Stock, StockHistory, StockWatchlist, Gold, GoldHistory, GoldWatchlist } from "@shared/schema";
 
 export function useCryptoData(limit?: number) {
   return useQuery<Cryptocurrency[]>({
@@ -275,6 +275,186 @@ export function useAddToPortfolio() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/portfolio'] });
+    },
+  });
+}
+
+// ========================================
+// Stock Hooks
+// ========================================
+
+export function useStocks(limit?: number) {
+  return useQuery<Stock[]>({
+    queryKey: ['/api/stocks', limit],
+    queryFn: async () => {
+      const url = limit ? `/api/stocks?limit=${limit}` : '/api/stocks';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch stocks');
+      return res.json();
+    },
+    staleTime: 30000,
+  });
+}
+
+export function useStockSearch(query: string, enabled: boolean = true) {
+  return useQuery<Stock[]>({
+    queryKey: ['/api/stocks/search', query],
+    queryFn: async () => {
+      const res = await fetch(`/api/stocks/search?q=${encodeURIComponent(query)}`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`Stock search failed: ${res.statusText}`);
+      return res.json();
+    },
+    enabled: enabled && query.length > 2,
+    staleTime: 30000,
+  });
+}
+
+export function useStockHistory(stockId: string, hours: number = 24) {
+  return useQuery<StockHistory[]>({
+    queryKey: [`/api/stocks/${stockId}/history?hours=${hours}`],
+    queryFn: async () => {
+      const res = await fetch(`/api/stocks/${stockId}/history?hours=${hours}`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error('Failed to fetch stock history');
+      return res.json();
+    },
+    staleTime: 0,
+    refetchInterval: 60000,
+    refetchIntervalInBackground: false,
+  });
+}
+
+export function useStockWatchlist() {
+  return useQuery<(StockWatchlist & { stock: Stock })[]>({
+    queryKey: ['/api/stocks/watchlist'],
+    queryFn: async () => {
+      const res = await fetch('/api/stocks/watchlist', {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error('Failed to fetch stock watchlist');
+      return res.json();
+    },
+    staleTime: 60000,
+  });
+}
+
+export function useAddToStockWatchlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { stockId: string }) => {
+      const response = await apiRequest('POST', '/api/stocks/watchlist', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/stocks/watchlist'] });
+    },
+  });
+}
+
+export function useRemoveFromStockWatchlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (stockId: string) => {
+      const response = await apiRequest('DELETE', `/api/stocks/watchlist/${stockId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/stocks/watchlist'] });
+    },
+  });
+}
+
+// ========================================
+// Gold Hooks
+// ========================================
+
+export function useGold(limit?: number) {
+  return useQuery<Gold[]>({
+    queryKey: ['/api/gold', limit],
+    queryFn: async () => {
+      const url = limit ? `/api/gold?limit=${limit}` : '/api/gold';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch gold');
+      return res.json();
+    },
+    staleTime: 30000,
+  });
+}
+
+export function useGoldSearch(query: string, enabled: boolean = true) {
+  return useQuery<Gold[]>({
+    queryKey: ['/api/gold/search', query],
+    queryFn: async () => {
+      const res = await fetch(`/api/gold/search?q=${encodeURIComponent(query)}`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`Gold search failed: ${res.statusText}`);
+      return res.json();
+    },
+    enabled: enabled && query.length > 2,
+    staleTime: 30000,
+  });
+}
+
+export function useGoldHistory(goldId: string, hours: number = 24) {
+  return useQuery<GoldHistory[]>({
+    queryKey: [`/api/gold/${goldId}/history?hours=${hours}`],
+    queryFn: async () => {
+      const res = await fetch(`/api/gold/${goldId}/history?hours=${hours}`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error('Failed to fetch gold history');
+      return res.json();
+    },
+    staleTime: 0,
+    refetchInterval: 60000,
+    refetchIntervalInBackground: false,
+  });
+}
+
+export function useGoldWatchlist() {
+  return useQuery<(GoldWatchlist & { gold: Gold })[]>({
+    queryKey: ['/api/gold/watchlist'],
+    queryFn: async () => {
+      const res = await fetch('/api/gold/watchlist', {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error('Failed to fetch gold watchlist');
+      return res.json();
+    },
+    staleTime: 60000,
+  });
+}
+
+export function useAddToGoldWatchlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { goldId: string }) => {
+      const response = await apiRequest('POST', '/api/gold/watchlist', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gold/watchlist'] });
+    },
+  });
+}
+
+export function useRemoveFromGoldWatchlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (goldId: string) => {
+      const response = await apiRequest('DELETE', `/api/gold/watchlist/${goldId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gold/watchlist'] });
     },
   });
 }

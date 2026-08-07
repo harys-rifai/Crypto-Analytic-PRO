@@ -108,6 +108,71 @@ export const fundWatchlists = pgTable("fund_watchlists", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const stocks = pgTable("stocks", {
+  id: varchar("id").primaryKey(),
+  symbol: text("symbol").notNull(),
+  name: text("name").notNull(),
+  exchange: text("exchange").notNull(),
+  sector: text("sector").notNull(),
+  industry: text("industry"),
+  current_price: decimal("current_price", { precision: 20, scale: 2 }),
+  change_1d: decimal("change_1d", { precision: 10, scale: 4 }),
+  change_1w: decimal("change_1w", { precision: 10, scale: 4 }),
+  change_1m: decimal("change_1m", { precision: 10, scale: 4 }),
+  change_1y: decimal("change_1y", { precision: 10, scale: 4 }),
+  market_cap: decimal("market_cap", { precision: 20, scale: 2 }),
+  volume: decimal("volume", { precision: 20, scale: 2 }),
+  high_24h: decimal("high_24h", { precision: 20, scale: 2 }),
+  low_24h: decimal("low_24h", { precision: 20, scale: 2 }),
+  pe_ratio: decimal("pe_ratio", { precision: 10, scale: 2 }),
+  eps: decimal("eps", { precision: 10, scale: 2 }),
+  dividend_yield: decimal("dividend_yield", { precision: 10, scale: 4 }),
+  last_updated: timestamp("last_updated").defaultNow(),
+});
+
+export const stockHistory = pgTable("stock_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  stockId: text("stock_id").notNull().references(() => stocks.id),
+  price: decimal("price", { precision: 20, scale: 2 }).notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+  volume: decimal("volume", { precision: 20, scale: 2 }),
+});
+
+export const stockWatchlists = pgTable("stock_watchlists", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  stockId: text("stock_id").notNull().references(() => stocks.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const gold = pgTable("gold", {
+  id: varchar("id").primaryKey(),
+  symbol: text("symbol").notNull(),
+  name: text("name").notNull(),
+  type: text("type").notNull(),
+  current_price: decimal("current_price", { precision: 20, scale: 2 }),
+  change_1d: decimal("change_1d", { precision: 10, scale: 4 }),
+  change_1w: decimal("change_1w", { precision: 10, scale: 4 }),
+  change_1m: decimal("change_1m", { precision: 10, scale: 4 }),
+  change_1y: decimal("change_1y", { precision: 10, scale: 4 }),
+  unit: text("unit").notNull(),
+  last_updated: timestamp("last_updated").defaultNow(),
+});
+
+export const goldHistory = pgTable("gold_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  goldId: text("gold_id").notNull().references(() => gold.id),
+  price: decimal("price", { precision: 20, scale: 2 }).notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const goldWatchlists = pgTable("gold_watchlists", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  goldId: text("gold_id").notNull().references(() => gold.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const portfolios = pgTable("portfolios", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
@@ -126,15 +191,200 @@ export const currencyRates = pgTable("currency_rates", {
   lastUpdated: timestamp("last_updated").defaultNow(),
 });
 
+// Seed data
+export const SEED_STOCKS = [
+  {
+    id: "bbca",
+    symbol: "BBCA",
+    name: "Bank Central Asia Tbk",
+    exchange: "IDX",
+    sector: "Financials",
+    industry: "Banks",
+    basePrice: 8750,
+    volatility: 0.02,
+  },
+  {
+    id: "bbri",
+    symbol: "BBRI",
+    name: "Bank Rakyat Indonesia Tbk",
+    exchange: "IDX",
+    sector: "Financials",
+    industry: "Banks",
+    basePrice: 4520,
+    volatility: 0.025,
+  },
+  {
+    id: "tlkm",
+    symbol: "TLKM",
+    name: "Telekomunikasi Indonesia Tbk",
+    exchange: "IDX",
+    sector: "Communication Services",
+    industry: "Telecommunications",
+    basePrice: 3650,
+    volatility: 0.018,
+  },
+  {
+    id: "asii",
+    symbol: "ASII",
+    name: "Astra International Tbk",
+    exchange: "IDX",
+    sector: "Consumer Discretionary",
+    industry: "Diversified",
+    basePrice: 5250,
+    volatility: 0.022,
+  },
+  {
+    id: "unvr",
+    symbol: "UNVR",
+    name: "Unilever Indonesia Tbk",
+    exchange: "IDX",
+    sector: "Consumer Staples",
+    industry: "Household Products",
+    basePrice: 3850,
+    volatility: 0.015,
+  },
+  {
+    id: "bmri",
+    symbol: "BMRI",
+    name: "Bank Mandiri Tbk",
+    exchange: "IDX",
+    sector: "Financials",
+    industry: "Banks",
+    basePrice: 5250,
+    volatility: 0.02,
+  },
+  {
+    id: "amrt",
+    symbol: "AMRT",
+    name: "Alfamart Retail Indonesia Tbk",
+    exchange: "IDX",
+    sector: "Consumer Staples",
+    industry: "Retail",
+    basePrice: 2780,
+    volatility: 0.02,
+  },
+  {
+    id: "goka",
+    symbol: "GOKA",
+    name: "Gudang Garam Tbk",
+    exchange: "IDX",
+    sector: "Consumer Staples",
+    industry: "Tobacco",
+    basePrice: 19800,
+    volatility: 0.025,
+  },
+  {
+    id: "indf",
+    symbol: "INDF",
+    name: "Indofood Sukses Makmur Tbk",
+    exchange: "IDX",
+    sector: "Consumer Staples",
+    industry: "Food Products",
+    basePrice: 6350,
+    volatility: 0.018,
+  },
+  {
+    id: "excl",
+    symbol: "EXCL",
+    name: "XL Axiata Tbk",
+    exchange: "IDX",
+    sector: "Communication Services",
+    industry: "Telecommunications",
+    basePrice: 2850,
+    volatility: 0.025,
+  },
+];
+
+export const SEED_GOLD = [
+  {
+    id: "xau-idr",
+    symbol: "XAU/IDR",
+    name: "Gold Spot (IDR)",
+    type: "gold_spot",
+    unit: "gram",
+    basePrice: 1150000,
+    volatility: 0.008,
+  },
+  {
+    id: "xau-usd",
+    symbol: "XAU/USD",
+    name: "Gold Spot (USD)",
+    type: "gold_spot",
+    unit: "troy_ounce",
+    basePrice: 2350,
+    volatility: 0.008,
+  },
+  {
+    id: "gold-mini",
+    symbol: "GCM",
+    name: "Gold Mini Futures",
+    type: "gold_futures",
+    unit: "troy_ounce",
+    basePrice: 2380,
+    volatility: 0.012,
+  },
+  {
+    id: "gold-1g",
+    symbol: "AU1G",
+    name: "Gold 1 Gram (IDR)",
+    type: "gold_spot",
+    unit: "gram",
+    basePrice: 1160000,
+    volatility: 0.008,
+  },
+  {
+    id: "gold-5g",
+    symbol: "AU5G",
+    name: "Gold 5 Gram (IDR)",
+    type: "gold_spot",
+    unit: "gram",
+    basePrice: 5750000,
+    volatility: 0.008,
+  },
+  {
+    id: "gold-10g",
+    symbol: "AU10G",
+    name: "Gold 10 Gram (IDR)",
+    type: "gold_spot",
+    unit: "gram",
+    basePrice: 11450000,
+    volatility: 0.008,
+  },
+  {
+    id: "gold-25g",
+    symbol: "AU25G",
+    name: "Gold 25 Gram (IDR)",
+    type: "gold_spot",
+    unit: "gram",
+    basePrice: 28600000,
+    volatility: 0.008,
+  },
+  {
+    id: "gold-50g",
+    symbol: "AU50G",
+    name: "Gold 50 Gram (IDR)",
+    type: "gold_spot",
+    unit: "gram",
+    basePrice: 57000000,
+    volatility: 0.008,
+  },
+];
+
 // Schemas
 export const insertCryptocurrencySchema = createInsertSchema(cryptocurrencies);
 export const insertWatchlistSchema = createInsertSchema(watchlists).omit({ id: true, createdAt: true });
 export const insertPriceAlertSchema = createInsertSchema(priceAlerts).omit({ id: true, createdAt: true, triggeredAt: true });
-export const insertPriceHistorySchema = createInsertSchema(priceHistory).omit({ id: true, timestamp: true });
+export const insertPriceHistorySchema = createInsertSchema(priceHistory).omit({ id: true });
 export const insertUserSchema = createInsertSchema(users).pick({ username: true, password: true });
 export const insertMutualFundSchema = createInsertSchema(mutualFunds);
 export const insertMutualFundHistorySchema = createInsertSchema(mutualFundHistory).omit({ id: true });
 export const insertFundWatchlistSchema = createInsertSchema(fundWatchlists).omit({ id: true, createdAt: true });
+export const insertStockSchema = createInsertSchema(stocks);
+export const insertStockHistorySchema = createInsertSchema(stockHistory).omit({ id: true });
+export const insertStockWatchlistSchema = createInsertSchema(stockWatchlists).omit({ id: true, createdAt: true });
+export const insertGoldSchema = createInsertSchema(gold);
+export const insertGoldHistorySchema = createInsertSchema(goldHistory).omit({ id: true });
+export const insertGoldWatchlistSchema = createInsertSchema(goldWatchlists).omit({ id: true, createdAt: true });
 export const insertPortfolioSchema = createInsertSchema(portfolios).omit({ id: true, createdAt: true });
 export const insertCurrencyRateSchema = createInsertSchema(currencyRates).omit({ lastUpdated: true });
 
@@ -154,6 +404,18 @@ export type MutualFundHistory = typeof mutualFundHistory.$inferSelect;
 export type InsertMutualFundHistory = z.infer<typeof insertMutualFundHistorySchema>;
 export type FundWatchlist = typeof fundWatchlists.$inferSelect;
 export type InsertFundWatchlist = z.infer<typeof insertFundWatchlistSchema>;
+export type Stock = typeof stocks.$inferSelect;
+export type InsertStock = z.infer<typeof insertStockSchema>;
+export type StockHistory = typeof stockHistory.$inferSelect;
+export type InsertStockHistory = z.infer<typeof insertStockHistorySchema>;
+export type StockWatchlist = typeof stockWatchlists.$inferSelect;
+export type InsertStockWatchlist = z.infer<typeof insertStockWatchlistSchema>;
+export type Gold = typeof gold.$inferSelect;
+export type InsertGold = z.infer<typeof insertGoldSchema>;
+export type GoldHistory = typeof goldHistory.$inferSelect;
+export type InsertGoldHistory = z.infer<typeof insertGoldHistorySchema>;
+export type GoldWatchlist = typeof goldWatchlists.$inferSelect;
+export type InsertGoldWatchlist = z.infer<typeof insertGoldWatchlistSchema>;
 export type Portfolio = typeof portfolios.$inferSelect;
 export type InsertPortfolio = z.infer<typeof insertPortfolioSchema>;
 export type CurrencyRate = typeof currencyRates.$inferSelect;

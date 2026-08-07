@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
+import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
 import { usePriceHistory } from "@/hooks/useCryptoData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import 'chartjs-chart-financial';
-import 'chartjs-adapter-date-fns';
+import "chartjs-adapter-date-fns";
 
-Chart.register(...registerables);
+Chart.register(...registerables, CandlestickController, CandlestickElement);
 
 type TimeFilter = '1h' | '3h' | '6h' | '24h' | '3d' | '7d' | '1m' | '3m' | '1y' | 'all';
 

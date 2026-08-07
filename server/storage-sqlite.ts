@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import { randomUUID } from "crypto";
 import { 
-  type User, type InsertUser, type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate
+  type User, type InsertUser, type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate
 } from "@shared/schema";
 
 const db = new Database("localdb.sqlite");
@@ -117,6 +117,83 @@ db.exec(`
 `);
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS stocks (
+    id TEXT PRIMARY KEY,
+    symbol TEXT NOT NULL,
+    name TEXT NOT NULL,
+    exchange TEXT NOT NULL,
+    sector TEXT NOT NULL,
+    industry TEXT,
+    current_price TEXT,
+    change_1d TEXT,
+    change_1w TEXT,
+    change_1m TEXT,
+    change_1y TEXT,
+    market_cap TEXT,
+    volume TEXT,
+    high_24h TEXT,
+    low_24h TEXT,
+    pe_ratio TEXT,
+    eps TEXT,
+    dividend_yield TEXT,
+    last_updated TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS stock_history (
+    id TEXT PRIMARY KEY,
+    stock_id TEXT NOT NULL,
+    price TEXT NOT NULL,
+    timestamp TEXT DEFAULT (datetime('now')),
+    volume TEXT
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS stock_watchlists (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    stock_id TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS gold (
+    id TEXT PRIMARY KEY,
+    symbol TEXT NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    current_price TEXT,
+    change_1d TEXT,
+    change_1w TEXT,
+    change_1m TEXT,
+    change_1y TEXT,
+    unit TEXT NOT NULL,
+    last_updated TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS gold_history (
+    id TEXT PRIMARY KEY,
+    gold_id TEXT NOT NULL,
+    price TEXT NOT NULL,
+    timestamp TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS gold_watchlists (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    gold_id TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS portfolios (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
@@ -172,6 +249,30 @@ export interface IStorage {
   getFundWatchlist(userId: string): Promise<(FundWatchlist & { fund: MutualFund })[]>;
   addToFundWatchlist(watchlistItem: InsertFundWatchlist): Promise<FundWatchlist>;
   removeFromFundWatchlist(userId: string, fundId: string): Promise<void>;
+
+  getStocks(limit?: number): Promise<Stock[]>;
+  getStock(id: string): Promise<Stock | undefined>;
+  upsertStock(stock: InsertStock): Promise<Stock>;
+  searchStocks(query: string): Promise<Stock[]>;
+
+  getStockHistory(stockId: string, hours: number): Promise<StockHistory[]>;
+  addStockHistory(historyData: InsertStockHistory): Promise<StockHistory>;
+
+  getStockWatchlist(userId: string): Promise<(StockWatchlist & { stock: Stock })[]>;
+  addToStockWatchlist(watchlistItem: InsertStockWatchlist): Promise<StockWatchlist>;
+  removeFromStockWatchlist(userId: string, stockId: string): Promise<void>;
+
+  getGold(id: string): Promise<Gold | undefined>;
+  upsertGold(goldItem: InsertGold): Promise<Gold>;
+  searchGold(query: string): Promise<Gold[]>;
+  getAllGold(limit?: number): Promise<Gold[]>;
+
+  getGoldHistory(goldId: string, hours: number): Promise<GoldHistory[]>;
+  addGoldHistory(historyData: InsertGoldHistory): Promise<GoldHistory>;
+
+  getGoldWatchlist(userId: string): Promise<(GoldWatchlist & { gold: Gold })[]>;
+  addToGoldWatchlist(watchlistItem: InsertGoldWatchlist): Promise<GoldWatchlist>;
+  removeFromGoldWatchlist(userId: string, goldId: string): Promise<void>;
 
   getPortfolios(userId: string): Promise<Portfolio[]>;
   addPortfolioItem(item: InsertPortfolio): Promise<Portfolio>;
@@ -462,6 +563,194 @@ export class SqliteStorage implements IStorage {
     db.prepare("DELETE FROM fund_watchlists WHERE user_id = ? AND fund_id = ?").run(userId, fundId);
   }
 
+  async getStocks(limit = 100): Promise<Stock[]> {
+    const rows = db.prepare("SELECT * FROM stocks ORDER BY CAST(COALESCE(market_cap, '0') AS REAL) DESC LIMIT ?").all(limit) as Stock[];
+    return rows;
+  }
+
+  async getStock(id: string): Promise<Stock | undefined> {
+    const row = db.prepare("SELECT * FROM stocks WHERE id = ?").get(id) as Stock | undefined;
+    return row;
+  }
+
+  async upsertStock(stock: InsertStock): Promise<Stock> {
+    const values: any = {
+      ...stock,
+      current_price: stock.current_price || null,
+      change_1d: stock.change_1d || null,
+      change_1w: stock.change_1w || null,
+      change_1m: stock.change_1m || null,
+      change_1y: stock.change_1y || null,
+      market_cap: stock.market_cap || null,
+      volume: stock.volume || null,
+      high_24h: stock.high_24h || null,
+      low_24h: stock.low_24h || null,
+      pe_ratio: stock.pe_ratio || null,
+      eps: stock.eps || null,
+      dividend_yield: stock.dividend_yield || null,
+      last_updated: new Date().toISOString(),
+    };
+
+    db.prepare(`
+      INSERT INTO stocks (id, symbol, name, exchange, sector, industry, current_price, change_1d, change_1w, change_1m, change_1y, market_cap, volume, high_24h, low_24h, pe_ratio, eps, dividend_yield, last_updated)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        symbol = excluded.symbol,
+        name = excluded.name,
+        exchange = excluded.exchange,
+        sector = excluded.sector,
+        industry = excluded.industry,
+        current_price = excluded.current_price,
+        change_1d = excluded.change_1d,
+        change_1w = excluded.change_1w,
+        change_1m = excluded.change_1m,
+        change_1y = excluded.change_1y,
+        market_cap = excluded.market_cap,
+        volume = excluded.volume,
+        high_24h = excluded.high_24h,
+        low_24h = excluded.low_24h,
+        pe_ratio = excluded.pe_ratio,
+        eps = excluded.eps,
+        dividend_yield = excluded.dividend_yield,
+        last_updated = excluded.last_updated
+    `).run(
+      values.id, values.symbol, values.name, values.exchange, values.sector, values.industry,
+      values.current_price, values.change_1d, values.change_1w, values.change_1m, values.change_1y,
+      values.market_cap, values.volume, values.high_24h, values.low_24h, values.pe_ratio, values.eps, values.dividend_yield, values.last_updated
+    );
+
+    const stockData = await this.getStock(stock.id);
+    return stockData as Stock;
+  }
+
+  async searchStocks(query: string): Promise<Stock[]> {
+    const lowerQuery = query.toLowerCase();
+    const rows = db.prepare("SELECT * FROM stocks WHERE lower(name) LIKE ? OR lower(symbol) LIKE ?").all(`%${lowerQuery}%`, `%${lowerQuery}%`) as Stock[];
+    return rows;
+  }
+
+  async addStockHistory(historyData: InsertStockHistory): Promise<StockHistory> {
+    const id = randomUUID();
+    db.prepare("INSERT INTO stock_history (id, stock_id, price, volume) VALUES (?, ?, ?, ?)").run(id, historyData.stockId, historyData.price, historyData.volume || null);
+    const row = db.prepare("SELECT * FROM stock_history WHERE id = ?").get(id) as StockHistory;
+    return row;
+  }
+
+  async getStockHistory(stockId: string, hours: number): Promise<StockHistory[]> {
+    const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000)).toISOString();
+    const rows = db.prepare("SELECT * FROM stock_history WHERE stock_id = ? AND timestamp >= ? ORDER BY timestamp ASC").all(stockId, cutoffTime) as StockHistory[];
+    return rows;
+  }
+
+  async getStockWatchlist(userId: string): Promise<(StockWatchlist & { stock: Stock })[]> {
+    const items = db.prepare("SELECT * FROM stock_watchlists WHERE user_id = ?").all(userId) as StockWatchlist[];
+    const result: (StockWatchlist & { stock: Stock })[] = [];
+    for (const item of items) {
+      const stock = await this.getStock(item.stockId);
+      if (stock) {
+        result.push({ ...item, stock });
+      }
+    }
+    return result;
+  }
+
+  async addToStockWatchlist(watchlistItem: InsertStockWatchlist): Promise<StockWatchlist> {
+    const id = randomUUID();
+    db.prepare("INSERT INTO stock_watchlists (id, user_id, stock_id) VALUES (?, ?, ?)").run(id, watchlistItem.userId, watchlistItem.stockId);
+    const row = db.prepare("SELECT * FROM stock_watchlists WHERE id = ?").get(id) as StockWatchlist;
+    return row;
+  }
+
+  async removeFromStockWatchlist(userId: string, stockId: string): Promise<void> {
+    db.prepare("DELETE FROM stock_watchlists WHERE user_id = ? AND stock_id = ?").run(userId, stockId);
+  }
+
+  async getGold(id: string): Promise<Gold | undefined> {
+    const row = db.prepare("SELECT * FROM gold WHERE id = ?").get(id) as Gold | undefined;
+    return row;
+  }
+
+  async upsertGold(goldItem: InsertGold): Promise<Gold> {
+    const values: any = {
+      ...goldItem,
+      current_price: goldItem.current_price || null,
+      change_1d: goldItem.change_1d || null,
+      change_1w: goldItem.change_1w || null,
+      change_1m: goldItem.change_1m || null,
+      change_1y: goldItem.change_1y || null,
+      last_updated: new Date().toISOString(),
+    };
+
+    db.prepare(`
+      INSERT INTO gold (id, symbol, name, type, current_price, change_1d, change_1w, change_1m, change_1y, unit, last_updated)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        symbol = excluded.symbol,
+        name = excluded.name,
+        type = excluded.type,
+        current_price = excluded.current_price,
+        change_1d = excluded.change_1d,
+        change_1w = excluded.change_1w,
+        change_1m = excluded.change_1m,
+        change_1y = excluded.change_1y,
+        unit = excluded.unit,
+        last_updated = excluded.last_updated
+    `).run(
+      values.id, values.symbol, values.name, values.type, values.current_price, values.change_1d,
+      values.change_1w, values.change_1m, values.change_1y, values.unit, values.last_updated
+    );
+
+    const goldData = await this.getGold(goldItem.id);
+    return goldData as Gold;
+  }
+
+  async searchGold(query: string): Promise<Gold[]> {
+    const lowerQuery = query.toLowerCase();
+    const rows = db.prepare("SELECT * FROM gold WHERE lower(name) LIKE ? OR lower(symbol) LIKE ?").all(`%${lowerQuery}%`, `%${lowerQuery}%`) as Gold[];
+    return rows;
+  }
+
+  async getAllGold(limit = 100): Promise<Gold[]> {
+    const rows = db.prepare("SELECT * FROM gold ORDER BY symbol ASC LIMIT ?").all(limit) as Gold[];
+    return rows;
+  }
+
+  async addGoldHistory(historyData: InsertGoldHistory): Promise<GoldHistory> {
+    const id = randomUUID();
+    db.prepare("INSERT INTO gold_history (id, gold_id, price) VALUES (?, ?, ?)").run(id, historyData.goldId, historyData.price);
+    const row = db.prepare("SELECT * FROM gold_history WHERE id = ?").get(id) as GoldHistory;
+    return row;
+  }
+
+  async getGoldHistory(goldId: string, hours: number): Promise<GoldHistory[]> {
+    const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000)).toISOString();
+    const rows = db.prepare("SELECT * FROM gold_history WHERE gold_id = ? AND timestamp >= ? ORDER BY timestamp ASC").all(goldId, cutoffTime) as GoldHistory[];
+    return rows;
+  }
+
+  async getGoldWatchlist(userId: string): Promise<(GoldWatchlist & { gold: Gold })[]> {
+    const items = db.prepare("SELECT * FROM gold_watchlists WHERE user_id = ?").all(userId) as GoldWatchlist[];
+    const result: (GoldWatchlist & { gold: Gold })[] = [];
+    for (const item of items) {
+      const goldItem = await this.getGold(item.goldId);
+      if (goldItem) {
+        result.push({ ...item, gold: goldItem });
+      }
+    }
+    return result;
+  }
+
+  async addToGoldWatchlist(watchlistItem: InsertGoldWatchlist): Promise<GoldWatchlist> {
+    const id = randomUUID();
+    db.prepare("INSERT INTO gold_watchlists (id, user_id, gold_id) VALUES (?, ?, ?)").run(id, watchlistItem.userId, watchlistItem.goldId);
+    const row = db.prepare("SELECT * FROM gold_watchlists WHERE id = ?").get(id) as GoldWatchlist;
+    return row;
+  }
+
+  async removeFromGoldWatchlist(userId: string, goldId: string): Promise<void> {
+    db.prepare("DELETE FROM gold_watchlists WHERE user_id = ? AND gold_id = ?").run(userId, goldId);
+  }
+
   async getPortfolios(userId: string): Promise<Portfolio[]> {
     const rows = db.prepare("SELECT * FROM portfolios WHERE user_id = ? ORDER BY datetime(created_at) DESC").all(userId) as Portfolio[];
     return rows;
@@ -496,6 +785,13 @@ export class SqliteStorage implements IStorage {
     `).run(rate.id || `${rate.fromCurrency}_${rate.toCurrency}`, rate.fromCurrency, rate.toCurrency, rate.rate);
     const row = db.prepare("SELECT * FROM currency_rates WHERE id = ?").get(rate.id || `${rate.fromCurrency}_${rate.toCurrency}`) as CurrencyRate;
     return row;
+  }
+
+  async clearHistory(): Promise<void> {
+    db.prepare("DELETE FROM price_history").run();
+    db.prepare("DELETE FROM mutual_fund_history").run();
+    db.prepare("DELETE FROM stock_history").run();
+    db.prepare("DELETE FROM gold_history").run();
   }
 }
 

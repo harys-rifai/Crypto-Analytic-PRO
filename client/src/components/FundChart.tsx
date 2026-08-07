@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
+import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
 import { useFundHistory } from "@/hooks/useCryptoData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -7,8 +8,9 @@ import { RefreshCw } from "lucide-react";
 import { useCurrency } from "@/hooks/useCurrency";
 import { convertPrice } from "@/lib/currencyFormat";
 import type { CurrencyRate } from "@shared/schema";
+import "chartjs-adapter-date-fns";
 
-Chart.register(...registerables);
+Chart.register(...registerables, CandlestickController, CandlestickElement);
 
 type TimeFilter = "1M" | "3M" | "6M" | "1Y" | "3Y" | "all";
 
@@ -144,12 +146,12 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
               up: "rgb(34, 197, 94)",
               down: "rgb(239, 68, 68)",
               unchanged: "rgb(161, 161, 170)",
-            },
+            } as any,
             backgroundColor: {
               up: "rgba(34, 197, 94, 0.8)",
               down: "rgba(239, 68, 68, 0.8)",
               unchanged: "rgba(161, 161, 170, 0.8)",
-            },
+            } as any,
           }],
         },
         options: {

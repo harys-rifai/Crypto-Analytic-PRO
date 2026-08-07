@@ -33,6 +33,32 @@ export interface IStorage {
   addToFundWatchlist(watchlistItem: any): Promise<any>;
   removeFromFundWatchlist(userId: string, fundId: string): Promise<void>;
 
+  getStocks(limit?: number): Promise<any[]>;
+  getStock(id: string): Promise<any | undefined>;
+  upsertStock(stock: any): Promise<any>;
+  searchStocks(query: string): Promise<any[]>;
+
+  getStockHistory(stockId: string, hours: number): Promise<any[]>;
+  addStockHistory(historyData: any): Promise<any>;
+
+  getStockWatchlist(userId: string): Promise<any[]>;
+  addToStockWatchlist(watchlistItem: any): Promise<any>;
+  removeFromStockWatchlist(userId: string, stockId: string): Promise<void>;
+
+  getGold(id: string): Promise<any | undefined>;
+  upsertGold(gold: any): Promise<any>;
+  searchGold(query: string): Promise<any[]>;
+  getAllGold(limit?: number): Promise<any[]>;
+
+  getGoldHistory(goldId: string, hours: number): Promise<any[]>;
+  addGoldHistory(historyData: any): Promise<any>;
+
+  getGoldWatchlist(userId: string): Promise<any[]>;
+  addToGoldWatchlist(watchlistItem: any): Promise<any>;
+  removeFromGoldWatchlist(userId: string, goldId: string): Promise<void>;
+
+  clearHistory(): Promise<void>;
+
   getPortfolios(userId: string): Promise<any[]>;
   addPortfolioItem(item: any): Promise<any>;
 

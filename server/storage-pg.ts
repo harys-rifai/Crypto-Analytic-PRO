@@ -2,8 +2,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pkg from "pg";
 const { Pool } = pkg;
 import { 
-  type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type User, type InsertUser, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate,
-  users, cryptocurrencies, watchlists, priceAlerts, priceHistory, mutualFunds, mutualFundHistory, fundWatchlists, portfolios, currencyRates
+  type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type User, type InsertUser, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate,
+  users, cryptocurrencies, watchlists, priceAlerts, priceHistory, mutualFunds, mutualFundHistory, fundWatchlists, stocks, stockHistory, stockWatchlists, gold, goldHistory, goldWatchlists, portfolios, currencyRates
 } from "@shared/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -183,7 +183,7 @@ export class DbStorage implements IStorage {
   async addPriceHistory(priceData: InsertPriceHistory): Promise<PriceHistory> {
     const id = randomUUID();
     try {
-      const [history] = await db.insert(priceHistory).values({ ...priceData, id, timestamp: new Date() }).returning();
+      const [history] = await db.insert(priceHistory).values({ ...priceData, id, timestamp: priceData.timestamp || new Date() }).returning();
       return history;
     } catch (error: any) {
       if (error?.code === '23503') {
@@ -241,7 +241,7 @@ export class DbStorage implements IStorage {
 
   async addFundHistory(historyData: InsertMutualFundHistory): Promise<MutualFundHistory> {
     const id = randomUUID();
-    const [history] = await db.insert(mutualFundHistory).values({ ...historyData, id }).returning();
+    const [history] = await db.insert(mutualFundHistory).values({ ...historyData, id, date: historyData.date || new Date() }).returning();
     return history;
   }
 
@@ -273,6 +273,169 @@ export class DbStorage implements IStorage {
     await db.delete(fundWatchlists).where(and(eq(fundWatchlists.userId, userId), eq(fundWatchlists.fundId, fundId)));
   }
 
+  async getStocks(limit = 100): Promise<Stock[]> {
+    const result = await db.select().from(stocks).orderBy(desc(stocks.market_cap)).limit(limit);
+    return result;
+  }
+
+  async getStock(id: string): Promise<Stock | undefined> {
+    const result = await db.select().from(stocks).where(eq(stocks.id, id)).limit(1);
+    return result[0];
+  }
+
+  async upsertStock(stock: InsertStock): Promise<Stock> {
+    const values: any = {
+      ...stock,
+      current_price: safeNum(stock.current_price, MAX_NUMERIC_20_2),
+      change_1d: safeNum(stock.change_1d, MAX_NUMERIC_10_4),
+      change_1w: safeNum(stock.change_1w, MAX_NUMERIC_10_4),
+      change_1m: safeNum(stock.change_1m, MAX_NUMERIC_10_4),
+      change_1y: safeNum(stock.change_1y, MAX_NUMERIC_10_4),
+      market_cap: safeNum(stock.market_cap, MAX_NUMERIC_20_2),
+      volume: safeNum(stock.volume, MAX_NUMERIC_20_2),
+      high_24h: safeNum(stock.high_24h, MAX_NUMERIC_20_2),
+      low_24h: safeNum(stock.low_24h, MAX_NUMERIC_20_2),
+      pe_ratio: safeNum(stock.pe_ratio, MAX_NUMERIC_10_4),
+      eps: safeNum(stock.eps, MAX_NUMERIC_10_4),
+      dividend_yield: safeNum(stock.dividend_yield, MAX_NUMERIC_10_4),
+      last_updated: new Date(),
+    };
+
+    const [updated] = await db.insert(stocks)
+      .values(values)
+      .onConflictDoUpdate({
+        target: stocks.id,
+        set: values,
+      })
+      .returning();
+    return updated;
+  }
+
+  async searchStocks(query: string): Promise<Stock[]> {
+    const lowerQuery = query.toLowerCase();
+    const result = await db.select().from(stocks).where(sql`lower(${stocks.name}) LIKE ${`%${lowerQuery}%`} OR lower(${stocks.symbol}) LIKE ${`%${lowerQuery}%`}`);
+    return result;
+  }
+
+  async addStockHistory(historyData: InsertStockHistory): Promise<StockHistory> {
+    const id = randomUUID();
+    try {
+      const [history] = await db.insert(stockHistory).values({ ...historyData, id, timestamp: historyData.timestamp || new Date() }).returning();
+      return history;
+    } catch (error: any) {
+      if (error?.code === '23503') {
+        return historyData as any;
+      }
+      throw error;
+    }
+  }
+
+  async getStockHistory(stockId: string, hours: number): Promise<StockHistory[]> {
+    const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
+    const result = await db.select().from(stockHistory).where(and(eq(stockHistory.stockId, stockId), sql`${stockHistory.timestamp} >= ${cutoffTime}`)).orderBy(stockHistory.timestamp);
+    return result;
+  }
+
+  async getStockWatchlist(userId: string): Promise<(StockWatchlist & { stock: Stock })[]> {
+    const items = await db.select().from(stockWatchlists).where(eq(stockWatchlists.userId, userId));
+    const result: (StockWatchlist & { stock: Stock })[] = [];
+    for (const item of items) {
+      const stock = await this.getStock(item.stockId);
+      if (stock) {
+        result.push({ ...item, stock });
+      }
+    }
+    return result;
+  }
+
+  async addToStockWatchlist(watchlistItem: InsertStockWatchlist): Promise<StockWatchlist> {
+    const id = randomUUID();
+    const [item] = await db.insert(stockWatchlists).values({ ...watchlistItem, id, createdAt: new Date() }).returning();
+    return item;
+  }
+
+  async removeFromStockWatchlist(userId: string, stockId: string): Promise<void> {
+    await db.delete(stockWatchlists).where(and(eq(stockWatchlists.userId, userId), eq(stockWatchlists.stockId, stockId)));
+  }
+
+  async getGold(id: string): Promise<Gold | undefined> {
+    const result = await db.select().from(gold).where(eq(gold.id, id)).limit(1);
+    return result[0];
+  }
+
+  async upsertGold(goldItem: InsertGold): Promise<Gold> {
+    const values: any = {
+      ...goldItem,
+      current_price: safeNum(goldItem.current_price, MAX_NUMERIC_20_2),
+      change_1d: safeNum(goldItem.change_1d, MAX_NUMERIC_10_4),
+      change_1w: safeNum(goldItem.change_1w, MAX_NUMERIC_10_4),
+      change_1m: safeNum(goldItem.change_1m, MAX_NUMERIC_10_4),
+      change_1y: safeNum(goldItem.change_1y, MAX_NUMERIC_10_4),
+      last_updated: new Date(),
+    };
+
+    const [updated] = await db.insert(gold)
+      .values(values)
+      .onConflictDoUpdate({
+        target: gold.id,
+        set: values,
+      })
+      .returning();
+    return updated;
+  }
+
+  async searchGold(query: string): Promise<Gold[]> {
+    const lowerQuery = query.toLowerCase();
+    const result = await db.select().from(gold).where(sql`lower(${gold.name}) LIKE ${`%${lowerQuery}%`} OR lower(${gold.symbol}) LIKE ${`%${lowerQuery}%`}`);
+    return result;
+  }
+
+  async getAllGold(limit = 100): Promise<Gold[]> {
+    const result = await db.select().from(gold).orderBy(gold.symbol).limit(limit);
+    return result;
+  }
+
+  async addGoldHistory(historyData: InsertGoldHistory): Promise<GoldHistory> {
+    const id = randomUUID();
+    try {
+      const [history] = await db.insert(goldHistory).values({ ...historyData, id, timestamp: historyData.timestamp || new Date() }).returning();
+      return history;
+    } catch (error: any) {
+      if (error?.code === '23503') {
+        return historyData as any;
+      }
+      throw error;
+    }
+  }
+
+  async getGoldHistory(goldId: string, hours: number): Promise<GoldHistory[]> {
+    const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
+    const result = await db.select().from(goldHistory).where(and(eq(goldHistory.goldId, goldId), sql`${goldHistory.timestamp} >= ${cutoffTime}`)).orderBy(goldHistory.timestamp);
+    return result;
+  }
+
+  async getGoldWatchlist(userId: string): Promise<(GoldWatchlist & { gold: Gold })[]> {
+    const items = await db.select().from(goldWatchlists).where(eq(goldWatchlists.userId, userId));
+    const result: (GoldWatchlist & { gold: Gold })[] = [];
+    for (const item of items) {
+      const goldItem = await this.getGold(item.goldId);
+      if (goldItem) {
+        result.push({ ...item, gold: goldItem });
+      }
+    }
+    return result;
+  }
+
+  async addToGoldWatchlist(watchlistItem: InsertGoldWatchlist): Promise<GoldWatchlist> {
+    const id = randomUUID();
+    const [item] = await db.insert(goldWatchlists).values({ ...watchlistItem, id, createdAt: new Date() }).returning();
+    return item;
+  }
+
+  async removeFromGoldWatchlist(userId: string, goldId: string): Promise<void> {
+    await db.delete(goldWatchlists).where(and(eq(goldWatchlists.userId, userId), eq(goldWatchlists.goldId, goldId)));
+  }
+
   async getPortfolios(userId: string): Promise<Portfolio[]> {
     const result = await db.select().from(portfolios).where(eq(portfolios.userId, userId)).orderBy(desc(portfolios.createdAt));
     return result;
@@ -301,5 +464,12 @@ export class DbStorage implements IStorage {
       set: { ...rate, lastUpdated: new Date() },
     }).returning();
     return updated;
+  }
+
+  async clearHistory(): Promise<void> {
+    await db.delete(priceHistory).execute();
+    await db.delete(mutualFundHistory).execute();
+    await db.delete(stockHistory).execute();
+    await db.delete(goldHistory).execute();
   }
 }

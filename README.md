@@ -6,15 +6,15 @@ A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, 
 
 - **Cryptocurrency** — Real-time prices, charts, watchlists, and price alerts
 - **Reksa Dana (Mutual Funds)** — NAV tracking, historical performance, and fund watchlists
-- **Stocks** *(Future Enhancement)*
-- **Gold** *(Future Enhancement)*
+- **Stocks** — Real-time prices, charts, watchlists, and price alerts
+- **Gold** — Real-time prices, charts, watchlists, and price alerts
 
 ## Features
 
 - **Authentication** — Secure login with session-based auth
-- **Real-Time Prices** — Live cryptocurrency market data with automatic updates
-- **Historical Charts** — Interactive NAV/price history across multiple time ranges
-- **Watchlists** — Save and favorite cryptocurrencies and mutual funds
+- **Real-Time Prices** — Live cryptocurrency, stock, gold, and fund market data with automatic updates
+- **Historical Charts** — Interactive price/NAV history across multiple time ranges with line and candlestick views
+- **Watchlists** — Save and favorite cryptocurrencies, mutual funds, stocks, and gold
 - **Price Alerts** — Get notified when prices hit your targets
 - **Portfolio Tracking** — Monitor holdings and performance across asset classes
 - **Currency Conversion** — Switch between IDR, USD, and SGD
@@ -44,8 +44,8 @@ A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, 
 
 **Data Sources**
 - CoinGecko API (cryptocurrency)
-- Yahoo Finance / seeded data (Reksa Dana)
-- ExchangeRate API (currency conversion)
+- Yahoo Finance / seeded data (Stocks, Reksa Dana)
+- goldprice.dev / ExchangeRate API (Gold, currency conversion)
 
 ## Prerequisites
 

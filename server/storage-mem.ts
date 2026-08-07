@@ -1,6 +1,6 @@
 import type { IStorage } from "./storage-base";
 import { 
-  type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type User, type InsertUser, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate
+  type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type User, type InsertUser, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -13,6 +13,12 @@ export class MemStorage implements IStorage {
   private mutualFunds = new Map<string, MutualFund>();
   private fundHistory = new Map<string, MutualFundHistory>();
   private fundWatchlists = new Map<string, FundWatchlist>();
+  private stocks = new Map<string, Stock>();
+  private stockHistory = new Map<string, StockHistory>();
+  private stockWatchlists = new Map<string, StockWatchlist>();
+  private gold = new Map<string, Gold>();
+  private goldHistory = new Map<string, GoldHistory>();
+  private goldWatchlists = new Map<string, GoldWatchlist>();
   private portfolios = new Map<string, Portfolio>();
   private currencyRates = new Map<string, CurrencyRate>();
 
@@ -260,6 +266,185 @@ export class MemStorage implements IStorage {
     }
   }
 
+  async getStocks(limit = 100): Promise<Stock[]> {
+    return Array.from(this.stocks.values())
+      .sort((a, b) => {
+        const aumA = parseFloat(a.market_cap || '0');
+        const aumB = parseFloat(b.market_cap || '0');
+        return aumB - aumA;
+      })
+      .slice(0, limit);
+  }
+
+  async getStock(id: string): Promise<Stock | undefined> {
+    return this.stocks.get(id);
+  }
+
+  async upsertStock(stock: InsertStock): Promise<Stock> {
+    const existing = this.stocks.get(stock.id);
+    const updated: Stock = {
+      ...existing,
+      ...stock,
+      id: stock.id,
+      symbol: stock.symbol,
+      name: stock.name,
+      exchange: stock.exchange,
+      sector: stock.sector,
+      industry: stock.industry || null,
+      current_price: stock.current_price || null,
+      change_1d: stock.change_1d || null,
+      change_1w: stock.change_1w || null,
+      change_1m: stock.change_1m || null,
+      change_1y: stock.change_1y || null,
+      market_cap: stock.market_cap || null,
+      volume: stock.volume || null,
+      high_24h: stock.high_24h || null,
+      low_24h: stock.low_24h || null,
+      pe_ratio: stock.pe_ratio || null,
+      eps: stock.eps || null,
+      dividend_yield: stock.dividend_yield || null,
+      last_updated: new Date()
+    };
+    this.stocks.set(stock.id, updated);
+    return updated;
+  }
+
+  async searchStocks(query: string): Promise<Stock[]> {
+    const lowerQuery = query.toLowerCase();
+    return Array.from(this.stocks.values()).filter(stock =>
+      stock.name.toLowerCase().includes(lowerQuery) ||
+      stock.symbol.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  async addStockHistory(historyData: InsertStockHistory): Promise<StockHistory> {
+    const id = randomUUID();
+    const history: StockHistory = {
+      id,
+      stockId: historyData.stockId,
+      price: historyData.price,
+      timestamp: new Date(),
+      volume: historyData.volume || null,
+    };
+    this.stockHistory.set(id, history);
+    return history;
+  }
+
+  async getStockHistory(stockId: string, hours: number): Promise<StockHistory[]> {
+    const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
+    return Array.from(this.stockHistory.values())
+      .filter(history => history.stockId === stockId && history.timestamp! >= cutoffTime)
+      .sort((a, b) => (a.timestamp!.getTime() - b.timestamp!.getTime()));
+  }
+
+  async getStockWatchlist(userId: string): Promise<(StockWatchlist & { stock: Stock })[]> {
+    const items = Array.from(this.stockWatchlists.values()).filter(item => item.userId === userId);
+    return items.map(item => {
+      const stock = this.stocks.get(item.stockId);
+      return { ...item, stock: stock! };
+    }).filter(item => item.stock);
+  }
+
+  async addToStockWatchlist(watchlistItem: InsertStockWatchlist): Promise<StockWatchlist> {
+    const id = randomUUID();
+    const item: StockWatchlist = {
+      ...watchlistItem,
+      id,
+      createdAt: new Date()
+    };
+    this.stockWatchlists.set(id, item);
+    return item;
+  }
+
+  async removeFromStockWatchlist(userId: string, stockId: string): Promise<void> {
+    const item = Array.from(this.stockWatchlists.entries()).find(([_, watchlist]) =>
+      watchlist.userId === userId && watchlist.stockId === stockId
+    );
+    if (item) {
+      this.stockWatchlists.delete(item[0]);
+    }
+  }
+
+  async getGold(id: string): Promise<Gold | undefined> {
+    return this.gold.get(id);
+  }
+
+  async upsertGold(goldItem: InsertGold): Promise<Gold> {
+    const existing = this.gold.get(goldItem.id);
+    const updated: Gold = {
+      ...existing,
+      ...goldItem,
+      current_price: goldItem.current_price || null,
+      change_1d: goldItem.change_1d || null,
+      change_1w: goldItem.change_1w || null,
+      change_1m: goldItem.change_1m || null,
+      change_1y: goldItem.change_1y || null,
+      last_updated: new Date()
+    };
+    this.gold.set(goldItem.id, updated);
+    return updated;
+  }
+
+  async searchGold(query: string): Promise<Gold[]> {
+    const lowerQuery = query.toLowerCase();
+    return Array.from(this.gold.values()).filter(goldItem =>
+      goldItem.name.toLowerCase().includes(lowerQuery) ||
+      goldItem.symbol.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  async getAllGold(limit = 100): Promise<Gold[]> {
+    return Array.from(this.gold.values())
+      .sort((a, b) => a.symbol.localeCompare(b.symbol))
+      .slice(0, limit);
+  }
+
+  async addGoldHistory(historyData: InsertGoldHistory): Promise<GoldHistory> {
+    const id = randomUUID();
+    const history: GoldHistory = {
+      ...historyData,
+      id,
+      timestamp: new Date()
+    };
+    this.goldHistory.set(id, history);
+    return history;
+  }
+
+  async getGoldHistory(goldId: string, hours: number): Promise<GoldHistory[]> {
+    const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
+    return Array.from(this.goldHistory.values())
+      .filter(history => history.goldId === goldId && history.timestamp! >= cutoffTime)
+      .sort((a, b) => (a.timestamp!.getTime() - b.timestamp!.getTime()));
+  }
+
+  async getGoldWatchlist(userId: string): Promise<(GoldWatchlist & { gold: Gold })[]> {
+    const items = Array.from(this.goldWatchlists.values()).filter(item => item.userId === userId);
+    return items.map(item => {
+      const goldItem = this.gold.get(item.goldId);
+      return { ...item, gold: goldItem! };
+    }).filter(item => item.gold);
+  }
+
+  async addToGoldWatchlist(watchlistItem: InsertGoldWatchlist): Promise<GoldWatchlist> {
+    const id = randomUUID();
+    const item: GoldWatchlist = {
+      ...watchlistItem,
+      id,
+      createdAt: new Date()
+    };
+    this.goldWatchlists.set(id, item);
+    return item;
+  }
+
+  async removeFromGoldWatchlist(userId: string, goldId: string): Promise<void> {
+    const item = Array.from(this.goldWatchlists.entries()).find(([_, watchlist]) =>
+      watchlist.userId === userId && watchlist.goldId === goldId
+    );
+    if (item) {
+      this.goldWatchlists.delete(item[0]);
+    }
+  }
+
   async getPortfolios(userId: string): Promise<Portfolio[]> {
     return Array.from(this.portfolios.values())
       .filter(item => item.userId === userId)
@@ -297,5 +482,12 @@ export class MemStorage implements IStorage {
     };
     this.currencyRates.set(id, updated);
     return updated;
+  }
+
+  async clearHistory(): Promise<void> {
+    this.priceHistory.clear();
+    this.fundHistory.clear();
+    this.stockHistory.clear();
+    this.goldHistory.clear();
   }
 }

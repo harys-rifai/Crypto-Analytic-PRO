@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import passport from "passport";
 import { storage } from "./storage";
-import { insertWatchlistSchema, insertPriceAlertSchema, insertFundWatchlistSchema, insertCurrencyRateSchema, insertPortfolioSchema, insertUserSchema } from "@shared/schema";
+import { insertWatchlistSchema, insertPriceAlertSchema, insertFundWatchlistSchema, insertCurrencyRateSchema, insertPortfolioSchema, insertUserSchema, insertStockSchema, insertStockHistorySchema, insertStockWatchlistSchema, insertGoldSchema, insertGoldHistorySchema, insertGoldWatchlistSchema } from "@shared/schema";
 import { z } from "zod";
 import { requireAuth, hashPassword } from "./auth";
 
@@ -170,6 +170,32 @@ const SEED_CURRENCY_RATES = [
   { id: "IDR_SGD", from: "IDR", to: "SGD", rate: 0.0000806 },
   { id: "SGD_USD", from: "SGD", to: "USD", rate: 0.7519 },
   { id: "SGD_IDR", from: "SGD", to: "IDR",  rate: 12391 },
+];
+
+// Seed data for Indonesian stocks
+const SEED_STOCKS = [
+  { id: "bbca", symbol: "BBCA", name: "Bank Central Asia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", basePrice: 8750, volatility: 0.02, change_1d: 1.2, change_1w: 2.5, change_1m: 5.1, change_1y: 15.3, pe_ratio: 18.5, eps: 472, dividend_yield: 2.1 },
+  { id: "bbri", symbol: "BBRI", name: "Bank Rakyat Indonesia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", basePrice: 4520, volatility: 0.025, change_1d: -0.5, change_1w: 1.8, change_1m: 3.2, change_1y: 12.1, pe_ratio: 15.2, eps: 297, dividend_yield: 3.5 },
+  { id: "tlkm", symbol: "TLKM", name: "Telekomunikasi Indonesia Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", basePrice: 3650, volatility: 0.018, change_1d: 0.8, change_1w: -1.2, change_1m: 2.5, change_1y: 8.7, pe_ratio: 12.8, eps: 285, dividend_yield: 4.2 },
+  { id: "asii", symbol: "ASII", name: "Astra International Tbk", exchange: "IDX", sector: "Consumer Discretionary", industry: "Diversified", basePrice: 5250, volatility: 0.022, change_1d: -1.1, change_1w: 0.5, change_1m: -2.3, change_1y: -5.4, pe_ratio: 10.5, eps: 500, dividend_yield: 3.8 },
+  { id: "unvr", symbol: "UNVR", name: "Unilever Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Household Products", basePrice: 3850, volatility: 0.015, change_1d: 0.3, change_1w: 1.1, change_1m: 2.8, change_1y: 6.5, pe_ratio: 22.1, eps: 174, dividend_yield: 2.5 },
+  { id: "bmri", symbol: "BMRI", name: "Bank Mandiri Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", basePrice: 5250, volatility: 0.02, change_1d: 0.9, change_1w: 2.1, change_1m: 4.5, change_1y: 18.2, pe_ratio: 14.3, eps: 367, dividend_yield: 3.1 },
+  { id: "amrt", symbol: "AMRT", name: "Alfamart Retail Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Retail", basePrice: 2780, volatility: 0.02, change_1d: -0.7, change_1w: 0.9, change_1m: 1.5, change_1y: 22.4, pe_ratio: 25.6, eps: 109, dividend_yield: 0.8 },
+  { id: "goka", symbol: "GOKA", name: "Gudang Garam Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Tobacco", basePrice: 19800, volatility: 0.025, change_1d: 1.5, change_1w: 3.2, change_1m: -1.8, change_1y: -12.3, pe_ratio: 8.9, eps: 2222, dividend_yield: 5.5 },
+  { id: "indf", symbol: "INDF", name: "Indofood Sukses Makmur Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Food Products", basePrice: 6350, volatility: 0.018, change_1d: 0.4, change_1w: 1.5, change_1m: 3.1, change_1y: 9.8, pe_ratio: 19.2, eps: 331, dividend_yield: 2.3 },
+  { id: "excl", symbol: "EXCL", name: "XL Axiata Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", basePrice: 2850, volatility: 0.025, change_1d: -1.8, change_1w: -2.5, change_1m: 0.8, change_1y: 5.2, pe_ratio: 11.5, eps: 248, dividend_yield: 4.8 },
+];
+
+// Seed data for gold
+const SEED_GOLD = [
+  { id: "xau-idr", symbol: "XAU/IDR", name: "Gold Spot (IDR)", type: "gold_spot", unit: "gram", basePrice: 1150000, volatility: 0.008 },
+  { id: "xau-usd", symbol: "XAU/USD", name: "Gold Spot (USD)", type: "gold_spot", unit: "troy_ounce", basePrice: 2350, volatility: 0.008 },
+  { id: "gold-mini", symbol: "GCM", name: "Gold Mini Futures", type: "gold_futures", unit: "troy_ounce", basePrice: 2380, volatility: 0.012 },
+  { id: "gold-1g", symbol: "AU1G", name: "Gold 1 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 1160000, volatility: 0.008 },
+  { id: "gold-5g", symbol: "AU5G", name: "Gold 5 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 5750000, volatility: 0.008 },
+  { id: "gold-10g", symbol: "AU10G", name: "Gold 10 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 11450000, volatility: 0.008 },
+  { id: "gold-25g", symbol: "AU25G", name: "Gold 25 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 28600000, volatility: 0.008 },
+  { id: "gold-50g", symbol: "AU50G", name: "Gold 50 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 57000000, volatility: 0.008 },
 ];
 
 async function fetchFromCoinGecko(endpoint: string) {
@@ -357,7 +383,6 @@ async function updateMutualFundData() {
     if (existingFunds.length === 0) {
       console.log('Storage empty - seeding mutual fund data');
       await seedFundData();
-      await seedFundHistory();
     }
 
     // Attempt to update from Yahoo Finance API
@@ -428,6 +453,240 @@ async function updateCurrencyRates() {
   } catch (error) {
     console.error('Failed to fetch currency rates, using seed data:', error);
     await seedCurrencyRates();
+  }
+}
+
+async function seedStockData() {
+  for (const seed of SEED_STOCKS) {
+    await storage.upsertStock({
+      id: seed.id,
+      symbol: seed.symbol,
+      name: seed.name,
+      exchange: seed.exchange,
+      sector: seed.sector,
+      industry: seed.industry,
+      current_price: seed.basePrice.toString(),
+      change_1d: (Math.random() * 4 - 2).toFixed(2),
+      change_1w: (Math.random() * 8 - 4).toFixed(2),
+      change_1m: (Math.random() * 15 - 7.5).toFixed(2),
+      change_1y: (Math.random() * 40 - 20).toFixed(2),
+      market_cap: (seed.basePrice * 1000000000).toString(),
+      volume: (Math.random() * 1000000000).toString(),
+      high_24h: (seed.basePrice * 1.02).toString(),
+      low_24h: (seed.basePrice * 0.98).toString(),
+      pe_ratio: (Math.random() * 30 + 5).toFixed(2),
+      eps: (seed.basePrice / 20).toFixed(2),
+      dividend_yield: (Math.random() * 5).toFixed(2),
+    });
+  }
+  console.log(`Seeded ${SEED_STOCKS.length} stocks`);
+}
+
+async function seedStockHistory() {
+  for (const seed of SEED_STOCKS) {
+    const now = Date.now();
+    const basePrice = seed.basePrice;
+
+    for (let i = 365; i >= 0; i--) {
+      const date = new Date(now - i * 24 * 60 * 60 * 1000);
+      const dayFactor = i / 365;
+      const trend = (Math.random() - 0.45) * 0.0003;
+      const cumulative = trend * dayFactor;
+
+      const noise = (Math.random() - 0.5) * 2 * seed.volatility;
+      const seasonal = Math.sin(i / 30) * (seed.volatility * 0.5);
+      const price = basePrice * (1 + cumulative + noise + seasonal);
+
+      await storage.addStockHistory({
+        stockId: seed.id,
+        price: Math.max(0.0001, price).toString(),
+        timestamp: date,
+        volume: (Math.random() * 100000000).toString(),
+      });
+    }
+  }
+  console.log('Seeded stock history (365 days)');
+}
+
+async function seedGoldData() {
+  for (const seed of SEED_GOLD) {
+    await storage.upsertGold({
+      id: seed.id,
+      symbol: seed.symbol,
+      name: seed.name,
+      type: seed.type,
+      current_price: seed.basePrice.toString(),
+      change_1d: (Math.random() * 2 - 1).toFixed(2),
+      change_1w: (Math.random() * 4 - 2).toFixed(2),
+      change_1m: (Math.random() * 8 - 4).toFixed(2),
+      change_1y: (Math.random() * 20 - 10).toFixed(2),
+      unit: seed.unit,
+    });
+  }
+  console.log(`Seeded ${SEED_GOLD.length} gold items`);
+}
+
+async function seedGoldHistory() {
+  for (const seed of SEED_GOLD) {
+    const now = Date.now();
+    const basePrice = seed.basePrice;
+
+    for (let i = 365; i >= 0; i--) {
+      const date = new Date(now - i * 24 * 60 * 60 * 1000);
+      const dayFactor = i / 365;
+      const trend = (Math.random() - 0.45) * 0.0002;
+      const cumulative = trend * dayFactor;
+
+      const noise = (Math.random() - 0.5) * 2 * seed.volatility;
+      const seasonal = Math.sin(i / 30) * (seed.volatility * 0.5);
+      const price = basePrice * (1 + cumulative + noise + seasonal);
+
+      await storage.addGoldHistory({
+        goldId: seed.id,
+        price: Math.max(0.0001, price).toString(),
+        timestamp: date,
+      });
+    }
+  }
+  console.log('Seeded gold history (365 days)');
+}
+
+async function updateStockData() {
+  try {
+    const existingStocks = await storage.getStocks(1);
+    if (existingStocks.length === 0) {
+      console.log('Storage empty - seeding stock data');
+      await seedStockData();
+    }
+
+    for (const seed of SEED_STOCKS) {
+      try {
+        const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${seed.symbol}.JK?range=1d&interval=1d`);
+        if (response.ok) {
+          const yahooData = await response.json();
+          const result = yahooData?.chart?.result?.[0];
+          if (result && result.meta) {
+            const currentPrice = result.meta.previousClose || seed.basePrice;
+            await storage.upsertStock({
+              id: seed.id,
+              symbol: seed.symbol,
+              name: seed.name,
+              exchange: seed.exchange,
+              sector: seed.sector,
+              industry: seed.industry,
+              current_price: currentPrice.toString(),
+              change_1d: seed.change_1d.toString(),
+              change_1w: seed.change_1w.toString(),
+              change_1m: seed.change_1m.toString(),
+              change_1y: seed.change_1y.toString(),
+              market_cap: (currentPrice * 1000000000).toString(),
+              volume: result.meta.regularMarketVolume?.toString() || (Math.random() * 1000000000).toString(),
+              high_24h: result.meta.high?.toString() || (currentPrice * 1.02).toString(),
+              low_24h: result.meta.low?.toString() || (currentPrice * 0.98).toString(),
+              pe_ratio: seed.pe_ratio?.toString() || (Math.random() * 30 + 5).toString(),
+              eps: seed.eps?.toString() || (currentPrice / 20).toString(),
+              dividend_yield: seed.dividend_yield?.toString() || (Math.random() * 5).toString(),
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Yahoo Finance fetch failed for ${seed.symbol}, using seed:`, error);
+      }
+    }
+
+    console.log(`Updated ${SEED_STOCKS.length} stocks`);
+  } catch (error) {
+    console.error('Error updating stock data:', error);
+  }
+}
+
+async function updateGoldData() {
+  try {
+    const existingGold = await storage.getAllGold(1);
+    if (existingGold.length === 0) {
+      console.log('Storage empty - seeding gold data');
+      await seedGoldData();
+    }
+
+    let xauUsdPrice: number | null = null;
+    let usdIdrRate: number | null = null;
+
+    try {
+      const goldResponse = await fetch('https://api.goldprice.dev/v1/prices');
+      if (goldResponse.ok) {
+        const goldData = await goldResponse.json();
+        const xauUsd = goldData.symbols.find((s: any) => s.symbol === 'XAU' && s.quote_currency === 'USD');
+        if (xauUsd) {
+          xauUsdPrice = parseFloat(xauUsd.price);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch gold price from goldprice.dev:', error);
+    }
+
+    try {
+      const fxResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      if (fxResponse.ok) {
+        const fxData = await fxResponse.json();
+        usdIdrRate = fxData.rates?.IDR || null;
+      }
+    } catch (error) {
+      console.error('Failed to fetch USD/IDR rate:', error);
+    }
+
+    const rates = await storage.getAllCurrencyRates();
+    const usdIdrRateStored = rates.find(r => r.fromCurrency === 'USD' && r.toCurrency === 'IDR');
+    if (!usdIdrRate && usdIdrRateStored) {
+      usdIdrRate = parseFloat(usdIdrRateStored.rate);
+    }
+
+    if (!xauUsdPrice) {
+      console.log('Could not fetch real gold price, keeping existing seed data');
+      return;
+    }
+
+    const troyOunceToGram = 31.1035;
+    const idrPerGram = usdIdrRate ? (xauUsdPrice * usdIdrRate) / troyOunceToGram : null;
+
+    for (const seed of SEED_GOLD) {
+      try {
+        let currentPrice: number;
+
+        if (seed.id === 'xau-usd' || seed.id === 'gold-mini') {
+          currentPrice = xauUsdPrice;
+        } else if (idrPerGram) {
+          currentPrice = idrPerGram;
+        } else {
+          currentPrice = seed.basePrice;
+        }
+
+        const existing = await storage.getGold(seed.id);
+        if (existing && existing.current_price) {
+          const oldPrice = parseFloat(existing.current_price);
+          if (oldPrice > 0) {
+            const priceChange1d = ((currentPrice - oldPrice) / oldPrice) * 100;
+            await storage.upsertGold({
+              id: seed.id,
+              symbol: seed.symbol,
+              name: seed.name,
+              type: seed.type,
+              current_price: currentPrice.toFixed(2),
+              change_1d: priceChange1d.toFixed(2),
+              change_1w: (Math.random() * 4 - 2).toFixed(2),
+              change_1m: (Math.random() * 8 - 4).toFixed(2),
+              change_1y: (Math.random() * 20 - 10).toFixed(2),
+              unit: seed.unit,
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Error updating gold ${seed.id}:`, error);
+      }
+    }
+
+    console.log(`Updated ${SEED_GOLD.length} gold items with real prices`);
+  } catch (error) {
+    console.error('Error updating gold data:', error);
   }
 }
 
@@ -533,11 +792,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Seed and update mutual fund data on startup
   seedCurrencyRates().catch(err => console.error("Currency rate seed failed:", err));
+  
+  // Clear and re-seed history to fix corrupted timestamps
+  storage.clearHistory().then(async () => {
+    console.log("Cleared history data, re-seeding...");
+    await seedFundHistory();
+    await seedStockHistory();
+    await seedGoldHistory();
+    console.log("History re-seeding complete");
+  }).catch(err => console.error("History clear failed:", err));
+  
   updateMutualFundData().catch(err => console.error("Mutual fund update failed:", err));
+  seedStockData().catch(err => console.error("Stock seed failed:", err));
+  seedGoldData().catch(err => console.error("Gold seed failed:", err));
+  updateStockData().catch(err => console.error("Stock update failed:", err));
+  updateGoldData().catch(err => console.error("Gold update failed:", err));
 
   // Set up periodic updates every 5 minutes to avoid rate limits
   setInterval(initializeAndUpdate, 300000);
   setInterval(updateMutualFundData, 3600000); // Update funds every hour
+  setInterval(updateStockData, 3600000); // Update stocks every hour
+  setInterval(updateGoldData, 3600000); // Update gold every hour
 
   // API Routes
   app.get("/api/cryptocurrencies", async (req, res) => {
@@ -648,10 +923,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             basePrice = 50 + (hash % 9500);
           }
 
+          let seed = 0;
+          for (let i = 0; i < id.length; i++) {
+            seed = ((seed << 5) - seed) + id.charCodeAt(i);
+            seed = seed & seed;
+          }
+          const seededRandom = () => {
+            seed = (seed * 16807 + 0) % 2147483647;
+            return (seed - 1) / 2147483646;
+          };
+
           history = Array.from({ length: numPoints }, (_, i) => {
             const time = start + (i * step);
             const trend = i / numPoints;
-            const change = Math.sin(i / 10) * (basePrice * 0.05) + (Math.random() - 0.5) * (basePrice * 0.02);
+            const change = Math.sin(i / 10) * (basePrice * 0.05) + (seededRandom() - 0.5) * (basePrice * 0.02);
             const price = basePrice * (1 + trend * 0.02) + change;
             return {
               id: `mock-${id}-${time}`,
@@ -932,10 +1217,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const now = Date.now();
         const numPoints = days <= 30 ? days : (days <= 90 ? Math.ceil(days / 2) : Math.ceil(days / 5));
 
+        let seed = 0;
+        for (let i = 0; i < id.length; i++) {
+          seed = ((seed << 5) - seed) + id.charCodeAt(i);
+          seed = seed & seed;
+        }
+        const seededRandom = () => {
+          seed = (seed * 16807 + 0) % 2147483647;
+          return (seed - 1) / 2147483646;
+        };
+
         history = Array.from({ length: Math.min(numPoints, 365) }, (_, i) => {
           const date = new Date(now - ((numPoints - 1 - i) * (days * 24 * 60 * 60 * 1000) / numPoints));
           const trend = i / numPoints;
-          const noise = (Math.random() - 0.5) * 2 * 0.005;
+          const noise = (seededRandom() - 0.5) * 2 * 0.005;
           const seasonal = Math.sin(i / 10) * 0.002;
           const nav = baseNav * (1 + trend * 0.02 + noise + seasonal);
 
@@ -977,6 +1272,257 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Removed from fund watchlist" });
     } catch (error) {
       res.status(500).json({ message: "Failed to remove from fund watchlist" });
+    }
+  });
+
+  // Stock routes
+  app.get("/api/stocks", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const stocks = await storage.getStocks(limit);
+      res.json(stocks);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch stocks" });
+    }
+  });
+
+  app.get("/api/stocks/search", async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+      const results = await storage.searchStocks(query);
+      res.json(results);
+    } catch (error) {
+      res.status(500).json({ message: "Search failed" });
+    }
+  });
+
+  app.get("/api/stocks/watchlist", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const watchlist = await storage.getStockWatchlist(userId);
+      res.json(watchlist);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch stock watchlist" });
+    }
+  });
+
+  app.post("/api/stocks/watchlist", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const data = insertStockWatchlistSchema.parse({
+        ...req.body,
+        userId: userId
+      });
+      const watchlistItem = await storage.addToStockWatchlist(data);
+      res.json(watchlistItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to add to stock watchlist" });
+    }
+  });
+
+  app.delete("/api/stocks/watchlist/:stockId", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const { stockId } = req.params;
+      await storage.removeFromStockWatchlist(userId, stockId);
+      res.json({ message: "Removed from stock watchlist" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to remove from stock watchlist" });
+    }
+  });
+
+  app.get("/api/stocks/:id/history", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const hours = req.query.hours ? parseInt(req.query.hours as string) : 24;
+
+      let history = await storage.getStockHistory(id, hours);
+
+      if (history.length === 0) {
+        const stock = await storage.getStock(id);
+        if (!stock) {
+          return res.status(404).json({ message: "Stock not found" });
+        }
+
+        const basePrice = parseFloat(stock.current_price || '100');
+        const now = Date.now();
+        const numPoints = hours <= 24 ? 48 : (hours <= 168 ? 168 : 365);
+
+        let seed = 0;
+        for (let i = 0; i < id.length; i++) {
+          seed = ((seed << 5) - seed) + id.charCodeAt(i);
+          seed = seed & seed;
+        }
+        const seededRandom = () => {
+          seed = (seed * 16807 + 0) % 2147483647;
+          return (seed - 1) / 2147483646;
+        };
+
+        history = Array.from({ length: Math.min(numPoints, 365) }, (_, i) => {
+          const date = new Date(now - ((numPoints - 1 - i) * (hours * 24 * 60 * 60 * 1000) / numPoints));
+          const trend = i / numPoints;
+          const noise = (seededRandom() - 0.5) * 2 * 0.02;
+          const seasonal = Math.sin(i / 30) * 0.01;
+          const price = basePrice * (1 + trend * 0.02 + noise + seasonal);
+
+          return {
+            id: `mock-${id}-${date.getTime()}`,
+            stockId: id,
+            price: Math.max(0.0001, price).toString(),
+            timestamp: date,
+            volume: (seededRandom() * 100000000).toString(),
+          };
+        });
+      }
+
+      res.json(history);
+    } catch (error) {
+      console.error('Error fetching stock history:', error);
+      res.status(500).json({ message: "Failed to fetch stock history" });
+    }
+  });
+
+  app.get("/api/stocks/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const stock = await storage.getStock(id);
+      if (!stock) {
+        return res.status(404).json({ message: "Stock not found" });
+      }
+      res.json(stock);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch stock" });
+    }
+  });
+
+  // Gold routes
+  app.get("/api/gold", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const gold = await storage.getAllGold(limit);
+      res.json(gold);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch gold" });
+    }
+  });
+
+  app.get("/api/gold/search", async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+      const results = await storage.searchGold(query);
+      res.json(results);
+    } catch (error) {
+      res.status(500).json({ message: "Search failed" });
+    }
+  });
+
+  app.get("/api/gold/watchlist", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const watchlist = await storage.getGoldWatchlist(userId);
+      res.json(watchlist);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch gold watchlist" });
+    }
+  });
+
+  app.post("/api/gold/watchlist", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const data = insertGoldWatchlistSchema.parse({
+        ...req.body,
+        userId: userId
+      });
+      const watchlistItem = await storage.addToGoldWatchlist(data);
+      res.json(watchlistItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to add to gold watchlist" });
+    }
+  });
+
+  app.delete("/api/gold/watchlist/:goldId", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const { goldId } = req.params;
+      await storage.removeFromGoldWatchlist(userId, goldId);
+      res.json({ message: "Removed from gold watchlist" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to remove from gold watchlist" });
+    }
+  });
+
+  app.get("/api/gold/:id/history", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const hours = req.query.hours ? parseInt(req.query.hours as string) : 24;
+
+      let history = await storage.getGoldHistory(id, hours);
+
+      if (history.length === 0) {
+        const goldItem = await storage.getGold(id);
+        if (!goldItem) {
+          return res.status(404).json({ message: "Gold not found" });
+        }
+
+        const basePrice = parseFloat(goldItem.current_price || '100');
+        const now = Date.now();
+        const numPoints = hours <= 24 ? 48 : (hours <= 168 ? 168 : 365);
+
+        let seed = 0;
+        for (let i = 0; i < id.length; i++) {
+          seed = ((seed << 5) - seed) + id.charCodeAt(i);
+          seed = seed & seed;
+        }
+        const seededRandom = () => {
+          seed = (seed * 16807 + 0) % 2147483647;
+          return (seed - 1) / 2147483646;
+        };
+
+        history = Array.from({ length: Math.min(numPoints, 365) }, (_, i) => {
+          const date = new Date(now - ((numPoints - 1 - i) * (hours * 24 * 60 * 60 * 1000) / numPoints));
+          const trend = i / numPoints;
+          const noise = (seededRandom() - 0.5) * 2 * 0.008;
+          const seasonal = Math.sin(i / 30) * 0.004;
+          const price = basePrice * (1 + trend * 0.01 + noise + seasonal);
+
+          return {
+            id: `mock-${id}-${date.getTime()}`,
+            goldId: id,
+            price: Math.max(0.0001, price).toString(),
+            timestamp: date,
+          };
+        });
+      }
+
+      res.json(history);
+    } catch (error) {
+      console.error('Error fetching gold history:', error);
+      res.status(500).json({ message: "Failed to fetch gold history" });
+    }
+  });
+
+  app.get("/api/gold/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const goldItem = await storage.getGold(id);
+      if (!goldItem) {
+        return res.status(404).json({ message: "Gold not found" });
+      }
+      res.json(goldItem);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch gold" });
     }
   });
 

@@ -3,6 +3,8 @@ import Watchlist from "./Watchlist";
 import PriceAlerts from "./PriceAlerts";
 import MarketNews from "./MarketNews";
 import FundWatchlist from "./FundWatchlist";
+import StockWatchlist from "./StockWatchlist";
+import GoldWatchlist from "./GoldWatchlist";
 
 export default function Sidebar() {
   return (
@@ -10,6 +12,8 @@ export default function Sidebar() {
       <MarketSummary />
       <Watchlist />
       <FundWatchlist />
+      <StockWatchlist />
+      <GoldWatchlist />
       <PriceAlerts />
       <MarketNews />
     </div>
