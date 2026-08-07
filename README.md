@@ -192,3 +192,4 @@ This project includes co-authored commits for pair programming sessions.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
