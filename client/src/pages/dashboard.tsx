@@ -17,7 +17,6 @@ import FABMenu from "@/components/FABMenu";
 import CurrencySwitcher from "@/components/CurrencySwitcher";
 import { useCryptoData, useMutualFunds, useStocks, useGold } from "@/hooks/useCryptoData";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCurrency } from "@/hooks/useCurrency";
 
 export default function Dashboard() {
@@ -85,32 +84,16 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <Header onSearchSelect={setSearchFilter} activeTab={activeTab} />
+      <Header onSearchSelect={setSearchFilter} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className="container mx-auto px-4 py-6">
-        {/* Tab Navigation */}
         <div className="flex items-center justify-between mb-6">
-          <Tabs
-            value={activeTab}
-            onValueChange={(val) => setActiveTab(val as "crypto" | "reksadana" | "stock" | "gold")}
-            className="w-full max-w-md"
-            data-testid="tabs-market"
-          >
-            <TabsList className="grid grid-cols-4 w-full">
-              <TabsTrigger value="crypto" data-testid="tab-crypto">
-                Cryptocurrency
-              </TabsTrigger>
-              <TabsTrigger value="reksadana" data-testid="tab-reksadana">
-                Reksa Dana
-              </TabsTrigger>
-              <TabsTrigger value="stock" data-testid="tab-stock">
-                Stocks
-              </TabsTrigger>
-              <TabsTrigger value="gold" data-testid="tab-gold">
-                Gold
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="text-sm text-muted-foreground">
+            {activeTab === "crypto" && "Cryptocurrency Prices"}
+            {activeTab === "reksadana" && "Reksa Dana NAV"}
+            {activeTab === "stock" && "Stock Prices"}
+            {activeTab === "gold" && "Gold Prices"}
+          </div>
           <CurrencySwitcher />
         </div>
 

@@ -648,14 +648,23 @@ async function updateGoldData() {
     const troyOunceToGram = 31.1035;
     const idrPerGram = usdIdrRate ? (xauUsdPrice * usdIdrRate) / troyOunceToGram : null;
 
+    const getWeightMultiplier = (seed: any): number => {
+      if (seed.id === 'xau-idr') return 1;
+      if (seed.id === 'xau-usd' || seed.id === 'gold-mini') return 1;
+      const match = seed.id.match(/gold-(\d+)g/);
+      if (match) return parseFloat(match[1]);
+      return 1;
+    };
+
     for (const seed of SEED_GOLD) {
       try {
         let currentPrice: number;
+        const weightMultiplier = getWeightMultiplier(seed);
 
         if (seed.id === 'xau-usd' || seed.id === 'gold-mini') {
           currentPrice = xauUsdPrice;
         } else if (idrPerGram) {
-          currentPrice = idrPerGram;
+          currentPrice = idrPerGram * weightMultiplier;
         } else {
           currentPrice = seed.basePrice;
         }

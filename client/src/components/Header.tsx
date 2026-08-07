@@ -191,7 +191,7 @@ export default function Header({ onSearchSelect, activeTab = "crypto", onTabChan
                           </div>
                         </div>
                       ))}
-                    {activeTab === "reksa dana" && fundResults &&
+                    {activeTab === "reksadana" && fundResults &&
                       fundResults.slice(0, 5).map((fund) => (
                         <div
                           key={fund.id}
