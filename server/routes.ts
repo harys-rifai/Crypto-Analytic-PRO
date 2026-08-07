@@ -44,7 +44,7 @@ const SEED_FUNDS = [
     name: "Schroder Dana Prestasi Plus",
     category: "Pendapatan Tetap",
     manager: "Schroder Investment Management",
-    image: "https://logo.clearbit.com/schroders.com?size=128",
+    image: "https://www.google.com/s2/favicons?domain=schroders.com?size=128",
     nav: 104.12,
     change_1d: 0.12,
     change_1w: 0.38,
@@ -61,7 +61,7 @@ const SEED_FUNDS = [
     name: "Sucorinvest Money Market Fund",
     category: "Pasar Uang",
     manager: "Sucorinvest",
-    image: "https://logo.clearbit.com/sucorinvest.com?size=128",
+    image: "https://www.google.com/s2/favicons?domain=sucorinvest.com?size=128",
     nav: 110.75,
     change_1d: 0.05,
     change_1w: 0.27,
@@ -78,7 +78,7 @@ const SEED_FUNDS = [
     name: "BCA Dana Kas",
     category: "Pasar Uang",
     manager: "PT Bank Central Asia",
-    image: "https://logo.clearbit.com/bankbca.com?size=128",
+    image: "https://www.google.com/s2/favicons?domain=bankbca.com?size=128",
     nav: 514.33,
     change_1d: 0.03,
     change_1w: 0.15,
@@ -95,7 +95,7 @@ const SEED_FUNDS = [
     name: "Mandiri Investa Pasar Uang",
     category: "Pasar Uang",
     manager: "Mandiri Investment Management",
-    image: "https://logo.clearbit.com/bankmandiri.co.id?size=128",
+    image: "https://www.google.com/s2/favicons?domain=bankmandiri.co.id?size=128",
     nav: 498.76,
     change_1d: 0.04,
     change_1w: 0.18,
@@ -112,7 +112,7 @@ const SEED_FUNDS = [
     name: "Batavia Dana Kas Maxima",
     category: "Pasar Uang",
     manager: "Batavia Asset Management",
-    image: "https://logo.clearbit.com/bataviasekuritas.com?size=128",
+    image: "https://www.google.com/s2/favicons?domain=bataviasekuritas.com?size=128",
     nav: 312.45,
     change_1d: 0.06,
     change_1w: 0.25,
@@ -129,7 +129,7 @@ const SEED_FUNDS = [
     name: "Danareksa Saham Samsung",
     category: "Saham",
     manager: "PT Danareksa Investama",
-    image: "https://logo.clearbit.com/danareksa.com?size=128",
+    image: "https://www.google.com/s2/favicons?domain=danareksa.com?size=128",
     nav: 235.68,
     change_1d: -0.85,
     change_1w: -2.14,
@@ -146,7 +146,7 @@ const SEED_FUNDS = [
     name: "BIBI Saham Unilever Indonesia",
     category: "Saham",
     manager: "PT Batavia Investmentindo",
-    image: "https://logo.clearbit.com/batavia.co.id?size=128",
+    image: "https://www.google.com/s2/favicons?domain=batavia.co.id?size=128",
     nav: 156.30,
     change_1d: 0.42,
     change_1w: 1.23,
@@ -163,7 +163,7 @@ const SEED_FUNDS = [
     name: "Star Capital Dana Emas",
     category: "Logam Mulia",
     manager: "Star Capital Sekuritas",
-    image: "https://logo.clearbit.com/starcapital.sekuritas.com?size=128",
+    image: "https://www.google.com/s2/favicons?domain=starcapital.sekuritas.com?size=128",
     nav: 89.15,
     change_1d: -0.12,
     change_1w: 0.85,
@@ -189,16 +189,16 @@ const SEED_CURRENCY_RATES = [
 
 // Seed data for Indonesian stocks
 const SEED_STOCKS = [
-  { id: "bbca", symbol: "BBCA", name: "Bank Central Asia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://logo.clearbit.com/bankbca.com?size=128", domain: "bankbca.com", basePrice: 8750, volatility: 0.02, change_1d: 1.2, change_1w: 2.5, change_1m: 5.1, change_1y: 15.3, pe_ratio: 18.5, eps: 472, dividend_yield: 2.1 },
-  { id: "bbri", symbol: "BBRI", name: "Bank Rakyat Indonesia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://logo.clearbit.com/bankbri.co.id?size=128", domain: "bankbri.co.id", basePrice: 4520, volatility: 0.025, change_1d: -0.5, change_1w: 1.8, change_1m: 3.2, change_1y: 12.1, pe_ratio: 15.2, eps: 297, dividend_yield: 3.5 },
-  { id: "tlkm", symbol: "TLKM", name: "Telekomunikasi Indonesia Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", image: "https://logo.clearbit.com/telkom.co.id?size=128", domain: "telkom.co.id", basePrice: 3650, volatility: 0.018, change_1d: 0.8, change_1w: -1.2, change_1m: 2.5, change_1y: 8.7, pe_ratio: 12.8, eps: 285, dividend_yield: 4.2 },
-  { id: "asii", symbol: "ASII", name: "Astra International Tbk", exchange: "IDX", sector: "Consumer Discretionary", industry: "Diversified", image: "https://logo.clearbit.com/astra.co.id?size=128", domain: "astra.co.id", basePrice: 5250, volatility: 0.022, change_1d: -1.1, change_1w: 0.5, change_1m: -2.3, change_1y: -5.4, pe_ratio: 10.5, eps: 500, dividend_yield: 3.8 },
-  { id: "unvr", symbol: "UNVR", name: "Unilever Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Household Products", image: "https://logo.clearbit.com/unilever.co.id?size=128", domain: "unilever.co.id", basePrice: 3850, volatility: 0.015, change_1d: 0.3, change_1w: 1.1, change_1m: 2.8, change_1y: 6.5, pe_ratio: 22.1, eps: 174, dividend_yield: 2.5 },
-  { id: "bmri", symbol: "BMRI", name: "Bank Mandiri Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://logo.clearbit.com/bankmandiri.co.id?size=128", domain: "bankmandiri.co.id", basePrice: 5250, volatility: 0.02, change_1d: 0.9, change_1w: 2.1, change_1m: 4.5, change_1y: 18.2, pe_ratio: 14.3, eps: 367, dividend_yield: 3.1 },
-  { id: "amrt", symbol: "AMRT", name: "Alfamart Retail Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Retail", image: "https://logo.clearbit.com/alfamart.co.id?size=128", domain: "alfamart.co.id", basePrice: 2780, volatility: 0.02, change_1d: -0.7, change_1w: 0.9, change_1m: 1.5, change_1y: 22.4, pe_ratio: 25.6, eps: 109, dividend_yield: 0.8 },
-  { id: "goka", symbol: "GOKA", name: "Gudang Garam Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Tobacco", image: "https://logo.clearbit.com/gudgangaram.com?size=128", domain: "gudanggaram.com", basePrice: 19800, volatility: 0.025, change_1d: 1.5, change_1w: 3.2, change_1m: -1.8, change_1y: -12.3, pe_ratio: 8.9, eps: 2222, dividend_yield: 5.5 },
-  { id: "indf", symbol: "INDF", name: "Indofood Sukses Makmur Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Food Products", image: "https://logo.clearbit.com/indofood.co.id?size=128", domain: "indofood.co.id", basePrice: 6350, volatility: 0.018, change_1d: 0.4, change_1w: 1.5, change_1m: 3.1, change_1y: 9.8, pe_ratio: 19.2, eps: 331, dividend_yield: 2.3 },
-  { id: "excl", symbol: "EXCL", name: "XL Axiata Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", image: "https://logo.clearbit.com/xl.co.id?size=128", domain: "xl.co.id", basePrice: 2850, volatility: 0.025, change_1d: -1.8, change_1w: -2.5, change_1m: 0.8, change_1y: 5.2, pe_ratio: 11.5, eps: 248, dividend_yield: 4.8 },
+  { id: "bbca", symbol: "BBCA", name: "Bank Central Asia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://www.google.com/s2/favicons?domain=bankbca.com?size=128", domain: "bankbca.com", basePrice: 8750, volatility: 0.02, change_1d: 1.2, change_1w: 2.5, change_1m: 5.1, change_1y: 15.3, pe_ratio: 18.5, eps: 472, dividend_yield: 2.1 },
+  { id: "bbri", symbol: "BBRI", name: "Bank Rakyat Indonesia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://www.google.com/s2/favicons?domain=bankbri.co.id?size=128", domain: "bankbri.co.id", basePrice: 4520, volatility: 0.025, change_1d: -0.5, change_1w: 1.8, change_1m: 3.2, change_1y: 12.1, pe_ratio: 15.2, eps: 297, dividend_yield: 3.5 },
+  { id: "tlkm", symbol: "TLKM", name: "Telekomunikasi Indonesia Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", image: "https://www.google.com/s2/favicons?domain=telkom.co.id?size=128", domain: "telkom.co.id", basePrice: 3650, volatility: 0.018, change_1d: 0.8, change_1w: -1.2, change_1m: 2.5, change_1y: 8.7, pe_ratio: 12.8, eps: 285, dividend_yield: 4.2 },
+  { id: "asii", symbol: "ASII", name: "Astra International Tbk", exchange: "IDX", sector: "Consumer Discretionary", industry: "Diversified", image: "https://www.google.com/s2/favicons?domain=astra.co.id?size=128", domain: "astra.co.id", basePrice: 5250, volatility: 0.022, change_1d: -1.1, change_1w: 0.5, change_1m: -2.3, change_1y: -5.4, pe_ratio: 10.5, eps: 500, dividend_yield: 3.8 },
+  { id: "unvr", symbol: "UNVR", name: "Unilever Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Household Products", image: "https://www.google.com/s2/favicons?domain=unilever.co.id?size=128", domain: "unilever.co.id", basePrice: 3850, volatility: 0.015, change_1d: 0.3, change_1w: 1.1, change_1m: 2.8, change_1y: 6.5, pe_ratio: 22.1, eps: 174, dividend_yield: 2.5 },
+  { id: "bmri", symbol: "BMRI", name: "Bank Mandiri Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://www.google.com/s2/favicons?domain=bankmandiri.co.id?size=128", domain: "bankmandiri.co.id", basePrice: 5250, volatility: 0.02, change_1d: 0.9, change_1w: 2.1, change_1m: 4.5, change_1y: 18.2, pe_ratio: 14.3, eps: 367, dividend_yield: 3.1 },
+  { id: "amrt", symbol: "AMRT", name: "Alfamart Retail Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Retail", image: "https://www.google.com/s2/favicons?domain=alfamart.co.id?size=128", domain: "alfamart.co.id", basePrice: 2780, volatility: 0.02, change_1d: -0.7, change_1w: 0.9, change_1m: 1.5, change_1y: 22.4, pe_ratio: 25.6, eps: 109, dividend_yield: 0.8 },
+  { id: "goka", symbol: "GOKA", name: "Gudang Garam Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Tobacco", image: "https://www.google.com/s2/favicons?domain=gudgangaram.com?size=128", domain: "gudanggaram.com", basePrice: 19800, volatility: 0.025, change_1d: 1.5, change_1w: 3.2, change_1m: -1.8, change_1y: -12.3, pe_ratio: 8.9, eps: 2222, dividend_yield: 5.5 },
+  { id: "indf", symbol: "INDF", name: "Indofood Sukses Makmur Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Food Products", image: "https://www.google.com/s2/favicons?domain=indofood.co.id?size=128", domain: "indofood.co.id", basePrice: 6350, volatility: 0.018, change_1d: 0.4, change_1w: 1.5, change_1m: 3.1, change_1y: 9.8, pe_ratio: 19.2, eps: 331, dividend_yield: 2.3 },
+  { id: "excl", symbol: "EXCL", name: "XL Axiata Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", image: "https://www.google.com/s2/favicons?domain=xl.co.id?size=128", domain: "xl.co.id", basePrice: 2850, volatility: 0.025, change_1d: -1.8, change_1w: -2.5, change_1m: 0.8, change_1y: 5.2, pe_ratio: 11.5, eps: 248, dividend_yield: 4.8 },
 ];
 
 // IHSG (Indonesia Composite Index) seed data
@@ -209,7 +209,7 @@ const SEED_IHSG = {
   exchange: "IDX",
   sector: "Market Index",
   industry: "Index",
-  image: "https://logo.clearbit.com/idx.co.id?size=128",
+  image: "https://www.google.com/s2/favicons?domain=idx.co.id?size=128",
   basePrice: 2450,
   volatility: 0.01,
 };
@@ -410,6 +410,7 @@ async function seedFallbackData() {
 }
 
 async function seedFundData() {
+  // Seed base funds
   for (const seed of SEED_FUNDS) {
     await storage.upsertMutualFund({
       id: seed.id,
@@ -427,7 +428,57 @@ async function seedFundData() {
       risk_level: seed.risk_level,
     });
   }
-  console.log(`Seeded ${SEED_FUNDS.length} mutual funds`);
+
+  // Generate additional funds to reach 100 total
+  const existingCount = await storage.getMutualFunds(100);
+  if (existingCount.length < 100) {
+    const managers = [
+      ['BCA', 'PT Bank Central Asia', 'bankbca.com'],
+      ['Mandiri', 'Mandiri Investment Management', 'bankmandiri.co.id'],
+      ['BNI', 'PT Bank Negara Indonesia', 'bni.co.id'],
+      ['CIMB', 'PT CIMB Investment', 'cimb.com'],
+      ['Danareksa', 'PT Danareksa Investama', 'danareksa.com'],
+      ['Schroder', 'Schroder Investment Management', 'schroders.com'],
+      ['Star Capital', 'Star Capital Sekuritas', 'starcapital.sekuritas.com'],
+      ['Sucorinvest', 'Sucorinvest', 'sucorinvest.com'],
+      ['Batavia', 'Batavia Asset Management', 'bataviasekuritas.com'],
+    ];
+    const categories = ['Pasar Uang', 'Saham', 'Campuran', 'Emas', 'Pendapatan Tetap', 'Agresif', 'Syariah'];
+    const categoryMap = { 'Pasar Uang': 'Low', 'Saham': 'High', 'Campuran': 'Medium', 'Emas': 'Medium', 'Pendapatan Tetap': 'Low', 'Agresif': 'High', 'Syariah': 'High' };
+    const suffixes = ['AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL'];
+    let generated = existingCount.length;
+    const managerIdx = Math.floor(Math.random() * managers.length);
+    const mgr = managers[managerIdx];
+    for (let i = 0; i < 12 && generated < 100; i++) {
+      const cat = categories[i % categories.length];
+      for (let j = 0; j < 8 && generated < 100; j++) {
+        const symbol = `F${String(generated + 1).padStart(3, '0')}${suffixes[j] || String(j)}`;
+        const navVal = 100 + Math.random() * 2000;
+        const mgrIdx = (managerIdx + j) % managers.length;
+        const m = managers[mgrIdx];
+        await storage.upsertMutualFund({
+          id: `fund-${String(generated + 1).padStart(3, '0')}-${suffixes[j] || String(j)}`,
+          symbol: symbol,
+          name: `${m[1]} Dana ${cat} ${suffixes[j] || (j + 1)}`,
+          category: cat,
+          manager: m[1],
+          image: `https://www.google.com/s2/favicons?domain=${m[2]}&sz=128`,
+          nav: navVal.toFixed(2),
+          change_1d: (Math.random() * 0.2 - 0.1).toFixed(4),
+          change_1w: (Math.random() * 0.5 - 0.25).toFixed(4),
+          change_1m: (Math.random() * 1.5 - 0.75).toFixed(4),
+          change_1y: (Math.random() * 8 - 4).toFixed(2),
+          aum: (50 + Math.random() * 5000).toFixed(0),
+          risk_level: categoryMap[cat] || 'Medium',
+        });
+        generated++;
+        if (generated >= 100) break;
+      }
+    }
+    console.log(`Seeded ${generated} mutual funds total`);
+  } else {
+    console.log(`Seeded ${SEED_FUNDS.length} mutual funds`);
+  }
 }
 
 async function seedFundHistory() {
@@ -595,6 +646,7 @@ async function updateCurrencyRates() {
 }
 
 async function seedStockData() {
+  // Seed base stocks
   for (const seed of SEED_STOCKS) {
     await storage.upsertStock({
       id: seed.id,
@@ -618,7 +670,69 @@ async function seedStockData() {
       dividend_yield: (Math.random() * 5).toFixed(2),
     });
   }
-  console.log(`Seeded ${SEED_STOCKS.length} stocks`);
+
+  // Generate additional stocks to reach 100 total
+  const existingCount = await storage.getStocks(100);
+  if (existingCount.length < 100) {
+    const extraCompanies = [
+      ['bbca', 'Bank Central Asia', 'bankbca.com', 'Financials', 'Banks', 8800],
+      ['bbri', 'Bank Rakyat Indonesia', 'bankbri.co.id', 'Financials', 'Banks', 4550],
+      ['bmri', 'Bank Mandiri', 'bankmandiri.co.id', 'Financials', 'Banks', 5300],
+      ['bni', 'Bank Negara Indonesia', 'bni.co.id', 'Financials', 'Banks', 5150],
+      ['bbtn', 'Bank Tabungan Negara', 'btn.co.id', 'Financials', 'Banks', 4300],
+      ['tlkm', 'Telkom Indonesia', 'telkom.co.id', 'Communication Services', 'Telecommunications', 3700],
+      ['excl', 'XL Axiata', 'xl.co.id', 'Communication Services', 'Telecommunications', 2900],
+      ['isat', 'Indosat', 'indosat.com', 'Communication Services', 'Telecommunications', 980],
+      ['asii', 'Astra International', 'astra.co.id', 'Consumer Discretionary', 'Diversified', 5300],
+      ['unvr', 'Unilever Indonesia', 'unilever.co.id', 'Consumer Staples', 'Household Products', 3900],
+      ['indf', 'Indofood', 'indofood.co.id', 'Consumer Staples', 'Food Products', 6450],
+      ['goka', 'Gudang Garam', 'gudanggaram.com', 'Consumer Staples', 'Tobacco', 19500],
+      ['amrt', 'Alfamart', 'alfamart.co.id', 'Consumer Staples', 'Retail', 2900],
+      ['adro', 'Adaro Energy', 'adaro.com', 'Energy', 'Coal', 2200],
+      ['ptba', 'Bukit Asam', 'bukitasam.com', 'Energy', 'Coal', 2800],
+      ['aali', 'Astra Agro Lestari', 'astra-agro.co.id', 'Energy', 'Palm Oil', 11600],
+      ['smgr', 'Semen Indonesia', 'semenindonesia.com', 'Industrials', 'Construction', 2850],
+      ['inco', 'Indo Tambangraya', 'vale.com', 'Materials', 'Nickel Mining', 17800],
+      ['intp', 'Indo Tambangraya Pertambangan', 'vale.com', 'Materials', 'Metal Mining', 21200],
+      ['tbgi', 'Toba Pulp Lestari', 'tobapulpasejahtera.com', 'Materials', 'Paper Products', 1400],
+    ];
+    const shareClasses = ['', '.A', '.B', '.C', '.D', '.E', '.F', '.G', '.H', '.I'];
+    let generated = existingCount.length;
+    for (const comp of extraCompanies) {
+      for (const suffix of shareClasses) {
+        if (generated >= 100) break;
+        const symbol = comp[1] + suffix;
+        const id = comp[0].toLowerCase() + suffix.toLowerCase().replace('.', '');
+        const price = comp[5] * (0.9 + Math.random() * 0.2);
+        await storage.upsertStock({
+          id: id,
+          symbol: symbol.substring(0, 12),
+          name: comp[1] + (suffix ? ` Class ${suffix.replace('.', '')}` : ''),
+          exchange: 'IDX',
+          sector: comp[3],
+          industry: comp[4],
+          image: `https://www.google.com/s2/favicons?domain=${comp[2]}&sz=128`,
+          current_price: price.toFixed(2),
+          change_1d: (Math.random() * 4 - 2).toFixed(2),
+          change_1w: (Math.random() * 8 - 4).toFixed(2),
+          change_1m: (Math.random() * 15 - 7.5).toFixed(2),
+          change_1y: (Math.random() * 40 - 20).toFixed(2),
+          market_cap: (price * 1000000000).toString(),
+          volume: (Math.random() * 1000000000).toString(),
+          high_24h: (price * 1.02).toString(),
+          low_24h: (price * 0.98).toString(),
+          pe_ratio: (Math.random() * 30 + 5).toFixed(2),
+          eps: (price / 20).toFixed(2),
+          dividend_yield: (Math.random() * 5).toFixed(2),
+        });
+        generated++;
+      }
+      if (generated >= 100) break;
+    }
+    console.log(`Seeded ${generated} stocks total`);
+  } else {
+    console.log(`Seeded ${SEED_STOCKS.length} stocks`);
+  }
 }
 
 async function seedStockHistory() {
