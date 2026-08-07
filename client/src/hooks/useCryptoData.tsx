@@ -37,7 +37,9 @@ export function useCryptoSearch(query: string, enabled: boolean = true) {
 export function usePriceHistory(cryptoId: string, hours: number = 24) {
   return useQuery<PriceHistory[]>({
     queryKey: [`/api/cryptocurrencies/${cryptoId}/history?hours=${hours}`],
-    staleTime: 60000, // Price history is fresh for 1 minute
+    staleTime: 0,
+    refetchInterval: 60000,
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -176,7 +178,9 @@ export function useFundHistory(fundId: string, days: number = 30) {
       if (!res.ok) throw new Error('Failed to fetch fund history');
       return res.json();
     },
-    staleTime: 60000,
+    staleTime: 0,
+    refetchInterval: 60000,
+    refetchIntervalInBackground: false,
   });
 }
 

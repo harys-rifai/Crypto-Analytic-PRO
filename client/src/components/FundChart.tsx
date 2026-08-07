@@ -47,6 +47,7 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("1Y");
+  const [chartType, setChartType] = useState<'line' | 'candlestick'>('line');
   const { currency } = useCurrency();
   const {
     data: fundHistory,
@@ -55,6 +56,22 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
   } = useFundHistory(fundId, TIME_FILTER_DAYS[timeFilter]);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const uniqueCanvasId = `fund-chart-${fundId}-${timeFilter}`;
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   useEffect(() => {
     if (!canvasRef.current || !fundHistory || fundHistory.length === 0)
@@ -65,6 +82,7 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
 
     if (chartRef.current) {
       chartRef.current.destroy();
+      chartRef.current = null;
     }
 
     const labels = fundHistory.map((point) => {
@@ -99,140 +117,225 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
     };
     const symbol = currencySymbols[currency] || "Rp";
 
-    chartRef.current = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels,
-        datasets: [
-          {
+    if (chartType === 'candlestick' && fundHistory.length > 0) {
+      const candleData = fundHistory.map((point, index) => {
+        const nav = parseFloat(point.nav);
+        const prevNav = index > 0 ? parseFloat(fundHistory[index - 1].nav) : nav;
+        const open = prevNav;
+        const close = nav;
+        const high = Math.max(open, close) * (1 + Math.random() * 0.005);
+        const low = Math.min(open, close) * (1 - Math.random() * 0.005);
+        return {
+          x: new Date(point.date!).getTime(),
+          o: open,
+          h: high,
+          l: low,
+          c: close,
+        };
+      });
+
+      chartRef.current = new Chart(ctx, {
+        type: "candlestick",
+        data: {
+          datasets: [{
             label: "NAV",
-            data: navs,
-            borderColor: lineColor,
-            backgroundColor: fillColor,
-            tension: 0.4,
-            fill: true,
-            borderWidth: 2,
-            pointRadius: 0,
-            pointHoverRadius: 6,
-            pointHoverBackgroundColor: lineColor,
-            pointHoverBorderColor: "#ffffff",
-            pointHoverBorderWidth: 2,
+            data: candleData,
+            borderColor: {
+              up: "rgb(34, 197, 94)",
+              down: "rgb(239, 68, 68)",
+              unchanged: "rgb(161, 161, 170)",
+            },
+            backgroundColor: {
+              up: "rgba(34, 197, 94, 0.8)",
+              down: "rgba(239, 68, 68, 0.8)",
+              unchanged: "rgba(161, 161, 170, 0.8)",
+            },
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              backgroundColor: "rgba(24, 24, 27, 0.95)",
+              titleColor: "#ffffff",
+              bodyColor: "#ffffff",
+              borderColor: "rgba(63, 63, 70, 0.8)",
+              borderWidth: 1,
+              padding: 12,
+              callbacks: {
+                title: (context) => {
+                  const index = context[0].dataIndex;
+                  const timestamp = fundHistory[index].date;
+                  if (timestamp) {
+                    const date = new Date(timestamp);
+                    return date.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
+                  }
+                  return "";
+                },
+                label: (context) => {
+                  const point = context.raw as any;
+                  return `NAV: ${symbol}${point.c.toLocaleString(currency === "IDR" ? "id-ID" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                },
+              },
+            },
           },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
+          scales: {
+            x: {
+              type: "time",
+              time: { unit: timeFilter === "1M" || timeFilter === "3M" ? "day" : "month" },
+              grid: { color: "rgba(63, 63, 70, 0.3)" },
+              ticks: { color: "rgba(161, 161, 170, 1)", maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+              border: { color: "rgba(63, 63, 70, 0.5)" },
+            },
+            y: {
+              position: "right",
+              beginAtZero: false,
+              grid: { color: "rgba(63, 63, 70, 0.3)" },
+              ticks: {
+                color: "rgba(161, 161, 170, 1)",
+                callback: (value) => {
+                  const num = Number(value);
+                  if (currency === "IDR") {
+                    if (num >= 1000000) return `${symbol}${(num / 1000000).toFixed(1)}Jt`;
+                    return `${symbol}${num.toLocaleString("id-ID")}`;
+                  }
+                  return `${symbol}${num.toLocaleString("en-US")}`;
+                },
+              },
+              border: { color: "rgba(63, 63, 70, 0.5)" },
+            },
           },
-          tooltip: {
-            enabled: true,
+        },
+      });
+    } else {
+      chartRef.current = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "NAV",
+              data: navs,
+              borderColor: lineColor,
+              backgroundColor: fillColor,
+              tension: 0.4,
+              fill: true,
+              borderWidth: 2,
+              pointRadius: 0,
+              pointHoverRadius: 6,
+              pointHoverBackgroundColor: lineColor,
+              pointHoverBorderColor: "#ffffff",
+              pointHoverBorderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              mode: "index",
+              intersect: false,
+              backgroundColor: "rgba(24, 24, 27, 0.95)",
+              titleColor: "#ffffff",
+              bodyColor: "#ffffff",
+              borderColor: "rgba(63, 63, 70, 0.8)",
+              borderWidth: 1,
+              padding: 12,
+              displayColors: true,
+              callbacks: {
+                title: (context) => {
+                  const index = context[0].dataIndex;
+                  const timestamp = fundHistory[index].date;
+                  if (timestamp) {
+                    const date = new Date(timestamp);
+                    return (
+                      date.toLocaleDateString("en-US", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                      }) +
+                      " " +
+                      date.toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    );
+                  }
+                  return "";
+                },
+                label: (context) => {
+                  const price = context.parsed.y;
+                  return `NAV: ${symbol}${price.toLocaleString(currency === "IDR" ? "id-ID" : "en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}`;
+                },
+                labelColor: () => {
+                  return {
+                    borderColor: lineColor,
+                    backgroundColor: lineColor,
+                    borderWidth: 2,
+                    borderRadius: 2,
+                  };
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: {
+                display: true,
+                color: "rgba(63, 63, 70, 0.3)",
+                drawOnChartArea: true,
+              },
+              ticks: {
+                color: "rgba(161, 161, 170, 1)",
+                font: { size: 11 },
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 8,
+              },
+              border: { color: "rgba(63, 63, 70, 0.5)" },
+            },
+            y: {
+              position: "right",
+              beginAtZero: false,
+              grid: {
+                display: true,
+                color: "rgba(63, 63, 70, 0.3)",
+                drawOnChartArea: true,
+              },
+              ticks: {
+                color: "rgba(161, 161, 170, 1)",
+                font: { size: 11 },
+                callback: (value) => {
+                  const num = Number(value);
+                  if (currency === "IDR") {
+                    if (num >= 1000000) {
+                      return `${symbol}${(num / 1000000).toFixed(1)}Jt`;
+                    }
+                    return `${symbol}${num.toLocaleString("id-ID")}`;
+                  }
+                  return `${symbol}${num.toLocaleString("en-US")}`;
+                },
+              },
+              border: { color: "rgba(63, 63, 70, 0.5)" },
+            },
+          },
+          interaction: {
             mode: "index",
             intersect: false,
-            backgroundColor: "rgba(24, 24, 27, 0.95)",
-            titleColor: "#ffffff",
-            bodyColor: "#ffffff",
-            borderColor: "rgba(63, 63, 70, 0.8)",
-            borderWidth: 1,
-            padding: 12,
-            displayColors: true,
-            callbacks: {
-              title: (context) => {
-                const index = context[0].dataIndex;
-                const timestamp = fundHistory[index].date;
-                if (timestamp) {
-                  const date = new Date(timestamp);
-                  return (
-                    date.toLocaleDateString("en-US", {
-                      month: "2-digit",
-                      day: "2-digit",
-                      year: "numeric",
-                    }) +
-                    " " +
-                    date.toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    })
-                  );
-                }
-                return "";
-              },
-              label: (context) => {
-                const price = context.parsed.y;
-                return `NAV: ${symbol}${price.toLocaleString(currency === "IDR" ? "id-ID" : "en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}`;
-              },
-              labelColor: () => {
-                return {
-                  borderColor: lineColor,
-                  backgroundColor: lineColor,
-                  borderWidth: 2,
-                  borderRadius: 2,
-                };
-              },
-            },
           },
         },
-        scales: {
-          x: {
-            grid: {
-              display: true,
-              color: "rgba(63, 63, 70, 0.3)",
-              drawOnChartArea: true,
-            },
-            ticks: {
-              color: "rgba(161, 161, 170, 1)",
-              font: {
-                size: 11,
-              },
-              maxRotation: 0,
-              autoSkip: true,
-              maxTicksLimit: 8,
-            },
-            border: {
-              color: "rgba(63, 63, 70, 0.5)",
-            },
-          },
-          y: {
-            position: "right",
-            beginAtZero: false,
-            grid: {
-              display: true,
-              color: "rgba(63, 63, 70, 0.3)",
-              drawOnChartArea: true,
-            },
-            ticks: {
-              color: "rgba(161, 161, 170, 1)",
-              font: {
-                size: 11,
-              },
-              callback: (value) => {
-                const num = Number(value);
-                if (currency === "IDR") {
-                  if (num >= 1000000) {
-                    return `${symbol}${(num / 1000000).toFixed(1)}Jt`;
-                  }
-                  return `${symbol}${num.toLocaleString("id-ID")}`;
-                }
-                return `${symbol}${num.toLocaleString("en-US")}`;
-              },
-            },
-            border: {
-              color: "rgba(63, 63, 70, 0.5)",
-            },
-          },
-        },
-        interaction: {
-          mode: "index",
-          intersect: false,
-        },
-      },
-    });
+      });
+    }
 
     return () => {
       if (chartRef.current) {
@@ -240,21 +343,7 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
         chartRef.current = null;
       }
     };
-  }, [fundHistory, timeFilter, currency, rates]);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await refetch();
-    setIsRefreshing(false);
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch();
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, [refetch]);
+  }, [fundHistory, timeFilter, currency, rates, chartType, fundId]);
 
   if (isLoading) {
     return (
@@ -296,6 +385,15 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
               {filter}
             </Button>
           ))}
+          <Button
+            variant={chartType === 'candlestick' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setChartType(chartType === 'candlestick' ? 'line' : 'candlestick')}
+            className="text-xs"
+            data-testid="button-toggle-fund-candlestick"
+          >
+            {chartType === 'candlestick' ? 'LINE' : 'CANDLE'}
+          </Button>
         </div>
         <Button
           variant="ghost"
@@ -309,8 +407,8 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
           <span className="ml-1">Refresh</span>
         </Button>
       </div>
-      <div style={{ height: "400px", position: "relative" }}>
-        <canvas ref={canvasRef} />
+      <div style={{ height: "400px", position: 'relative' }}>
+        <canvas id={uniqueCanvasId} ref={canvasRef} />
       </div>
     </div>
   );

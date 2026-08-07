@@ -626,22 +626,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (fetchError) {
           console.error(`Fetch failed for ${id} history (${hours}h), using mock fallback:`, fetchError);
 
-          // Fallback: Generate mock data with linear interpolation + noise
+          // Fallback: Generate mock data with deterministic but unique base price per crypto
           const now = Date.now();
           const numPoints = hours <= 24 ? 48 : (hours <= 168 ? 168 : 365);
           const start = now - (hours * 60 * 60 * 1000);
           const step = (now - start) / numPoints;
 
-          const basePrice = 50000;
+          let basePrice = 50000;
+          if (id === 'bitcoin') basePrice = 65000;
+          else if (id === 'ethereum') basePrice = 3500;
+          else if (id === 'binancecoin') basePrice = 600;
+          else if (id === 'solana') basePrice = 145;
+          else if (id === 'ripple') basePrice = 0.62;
+          else if (id === 'cardano') basePrice = 0.45;
+          else if (id === 'dogecoin') basePrice = 0.16;
+          else if (id === 'polkadot') basePrice = 7.2;
+          else if (id === 'tron') basePrice = 0.24;
+          else if (id === 'avalanche') basePrice = 38;
+          else {
+            const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            basePrice = 50 + (hash % 9500);
+          }
 
           history = Array.from({ length: numPoints }, (_, i) => {
             const time = start + (i * step);
-            // Add some sine wave + random noise for realistic look
+            const trend = i / numPoints;
             const change = Math.sin(i / 10) * (basePrice * 0.05) + (Math.random() - 0.5) * (basePrice * 0.02);
+            const price = basePrice * (1 + trend * 0.02) + change;
             return {
               id: `mock-${id}-${time}`,
               cryptoId: id,
-              price: (basePrice + change).toString(),
+              price: Math.max(0.0001, price).toString(),
               timestamp: new Date(time)
             };
           });
