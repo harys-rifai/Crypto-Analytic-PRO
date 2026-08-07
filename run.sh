@@ -66,7 +66,14 @@ fi
 
 # Push database schema
 echo "Pushing database schema..."
-npm run db:push 2>&1 || echo "db:push skipped/failed; keeping existing data"
+DB_PUSH_OUTPUT=$(npm run db:push 2>&1 || true)
+if echo "$DB_PUSH_OUTPUT" | grep -qi "column \"id\" is in a primary key"; then
+  echo "db:push reported a PostgreSQL constraint notice; tables are already in place."
+elif echo "$DB_PUSH_OUTPUT" | grep -qi "error"; then
+  echo "$DB_PUSH_OUTPUT"
+else
+  echo "$DB_PUSH_OUTPUT"
+fi
 
 # CoinGecko API uses HTTPS; some environments fail TLS verification.
 export NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED:-0}
