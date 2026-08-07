@@ -187,9 +187,13 @@ export default function GoldTable({ gold, isLoading, searchFilter }: GoldTablePr
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold">
-                        {goldItem.symbol || "?"}
-                      </div>
+                      {goldItem.image ? (
+                        <img src={goldItem.image} alt={goldItem.name} className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold">
+                          {goldItem.symbol || "?"}
+                        </div>
+                      )}
                       <div>
                         <div className="font-medium" data-testid={`text-gold-name-${goldItem.id}`}>
                           {goldItem.name}

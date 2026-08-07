@@ -207,9 +207,13 @@ export default function FundTable({ funds, isLoading, searchFilter }: FundTableP
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold">
-                        {fund.symbol || "?"}
-                      </div>
+                      {fund.image ? (
+                        <img src={fund.image} alt={fund.name} className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold">
+                          {fund.symbol || "?"}
+                        </div>
+                      )}
                       <div>
                         <div className="font-medium" data-testid={`text-fund-name-${fund.id}`}>
                           {fund.name}

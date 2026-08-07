@@ -207,6 +207,7 @@ export class MemStorage implements IStorage {
       aum: fund.aum || null,
       manager: fund.manager || null,
       risk_level: fund.risk_level || null,
+      image: fund.image || null,
       last_updated: new Date()
     };
     this.mutualFunds.set(fund.id, updated);
@@ -291,6 +292,7 @@ export class MemStorage implements IStorage {
       exchange: stock.exchange,
       sector: stock.sector,
       industry: stock.industry || null,
+      image: stock.image || null,
       current_price: stock.current_price || null,
       change_1d: stock.change_1d || null,
       change_1w: stock.change_1w || null,
@@ -379,6 +381,7 @@ export class MemStorage implements IStorage {
       change_1w: goldItem.change_1w || null,
       change_1m: goldItem.change_1m || null,
       change_1y: goldItem.change_1y || null,
+      image: goldItem.image || null,
       last_updated: new Date()
     };
     this.gold.set(goldItem.id, updated);

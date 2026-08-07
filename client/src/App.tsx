@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "./hooks/useTheme";
 import { CurrencyProvider } from "./hooks/useCurrency";
 import { AuthProvider, useAuth } from "./hooks/useAuthContext";
+import { WebSocketProvider } from "./hooks/useWebSocket";
 import Dashboard from "@/pages/dashboard";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
@@ -49,9 +50,11 @@ function App() {
         <CurrencyProvider>
           <TooltipProvider>
             <Toaster />
-            <AuthProvider>
-              <Router />
-            </AuthProvider>
+           <AuthProvider>
+             <WebSocketProvider>
+               <Router />
+             </WebSocketProvider>
+           </AuthProvider>
           </TooltipProvider>
         </CurrencyProvider>
       </ThemeProvider>

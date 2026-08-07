@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
 import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
 import { useStockHistory } from "@/hooks/useCryptoData";
+import { useWebSocketContext } from "@/hooks/useWebSocket";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -51,6 +52,7 @@ export default function StockChart({ stockId, rates }: StockChartProps) {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("1Y");
   const [chartType, setChartType] = useState<'line' | 'candlestick'>('line');
   const { currency } = useCurrency();
+  const { lastTick } = useWebSocketContext();
   const {
     data: stockHistory,
     isLoading,
@@ -125,8 +127,10 @@ export default function StockChart({ stockId, rates }: StockChartProps) {
         const prevPrice = index > 0 ? parseFloat(stockHistory[index - 1].price) : price;
         const open = prevPrice;
         const close = price;
-        const high = Math.max(open, close) * (1 + Math.random() * 0.005);
-        const low = Math.min(open, close) * (1 - Math.random() * 0.005);
+        const priceHash = Math.abs(price * 1000 + index * 37) % 1000;
+        const offset = (priceHash / 1000) * 0.01;
+        const high = Math.max(open, close) * (1 + offset);
+        const low = Math.min(open, close) * (1 - offset);
         return {
           x: new Date(point.timestamp!).getTime(),
           o: open,
@@ -346,6 +350,29 @@ export default function StockChart({ stockId, rates }: StockChartProps) {
       }
     };
   }, [stockHistory, timeFilter, currency, rates, chartType, stockId]);
+
+  useEffect(() => {
+    if (!chartRef.current || !lastTick) return;
+    const tick = lastTick[stockId];
+    if (!tick) return;
+    const chart = chartRef.current;
+    const newData = chart.data.datasets[0].data as any[];
+    if (chartType === "candlestick") {
+      if (newData.length > 0) {
+        const lastCandle = newData[newData.length - 1] as any;
+        const newPrice = parseFloat(tick.current_price);
+        lastCandle.c = newPrice;
+        lastCandle.h = Math.max(lastCandle.h, newPrice);
+        lastCandle.l = Math.min(lastCandle.l, newPrice);
+        chart.update("quiet");
+      }
+    } else {
+      if (newData.length > 0) {
+        newData[newData.length - 1] = parseFloat(tick.current_price);
+        chart.update("quiet");
+      }
+    }
+  }, [lastTick, chartType, stockId]);
 
   if (isLoading) {
     return (

@@ -204,9 +204,13 @@ export default function StockTable({ stocks, isLoading, searchFilter }: StockTab
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold">
-                        {stock.symbol || "?"}
-                      </div>
+                      {stock.image ? (
+                        <img src={stock.image} alt={stock.name} className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold">
+                          {stock.symbol || "?"}
+                        </div>
+                      )}
                       <div>
                         <div className="font-medium" data-testid={`text-stock-name-${stock.id}`}>
                           {stock.name}

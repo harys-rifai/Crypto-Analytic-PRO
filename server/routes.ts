@@ -1,6 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+
+declare module "ws" {
+  interface WebSocket {
+    isAlive?: boolean;
+  }
+}
+
 import passport from "passport";
 import { storage } from "./storage";
 import { insertWatchlistSchema, insertPriceAlertSchema, insertFundWatchlistSchema, insertCurrencyRateSchema, insertPortfolioSchema, insertUserSchema, insertStockSchema, insertStockHistorySchema, insertStockWatchlistSchema, insertGoldSchema, insertGoldHistorySchema, insertGoldWatchlistSchema } from "@shared/schema";
@@ -37,6 +44,7 @@ const SEED_FUNDS = [
     name: "Schroder Dana Prestasi Plus",
     category: "Pendapatan Tetap",
     manager: "Schroder Investment Management",
+    image: "https://ui-avatars.com/api/?name=SDPP&background=003366&color=fff",
     nav: 104.12,
     change_1d: 0.12,
     change_1w: 0.38,
@@ -53,6 +61,7 @@ const SEED_FUNDS = [
     name: "Sucorinvest Money Market Fund",
     category: "Pasar Uang",
     manager: "Sucorinvest",
+    image: "https://ui-avatars.com/api/?name=SISMM&background=CC0000&color=fff",
     nav: 110.75,
     change_1d: 0.05,
     change_1w: 0.27,
@@ -69,6 +78,7 @@ const SEED_FUNDS = [
     name: "BCA Dana Kas",
     category: "Pasar Uang",
     manager: "PT Bank Central Asia",
+    image: "https://ui-avatars.com/api/?name=BCDK&background=0066CC&color=fff",
     nav: 514.33,
     change_1d: 0.03,
     change_1w: 0.15,
@@ -85,6 +95,7 @@ const SEED_FUNDS = [
     name: "Mandiri Investa Pasar Uang",
     category: "Pasar Uang",
     manager: "Mandiri Investment Management",
+    image: "https://ui-avatars.com/api/?name=MIPO&background=FFCC00&color=333",
     nav: 498.76,
     change_1d: 0.04,
     change_1w: 0.18,
@@ -101,6 +112,7 @@ const SEED_FUNDS = [
     name: "Batavia Dana Kas Maxima",
     category: "Pasar Uang",
     manager: "Batavia Asset Management",
+    image: "https://ui-avatars.com/api/?name=BDKM&background=8B4513&color=fff",
     nav: 312.45,
     change_1d: 0.06,
     change_1w: 0.25,
@@ -117,6 +129,7 @@ const SEED_FUNDS = [
     name: "Danareksa Saham Samsung",
     category: "Saham",
     manager: "PT Danareksa Investama",
+    image: "https://ui-avatars.com/api/?name=DSS&background=1428A0&color=fff",
     nav: 235.68,
     change_1d: -0.85,
     change_1w: -2.14,
@@ -133,6 +146,7 @@ const SEED_FUNDS = [
     name: "BIBI Saham Unilever Indonesia",
     category: "Saham",
     manager: "PT Batavia Investmentindo",
+    image: "https://ui-avatars.com/api/?name=BSU&background=00AA00&color=fff",
     nav: 156.30,
     change_1d: 0.42,
     change_1w: 1.23,
@@ -149,6 +163,7 @@ const SEED_FUNDS = [
     name: "Star Capital Dana Emas",
     category: "Logam Mulia",
     manager: "Star Capital Sekuritas",
+    image: "https://ui-avatars.com/api/?name=SCE&background=FFD700&color=333",
     nav: 89.15,
     change_1d: -0.12,
     change_1w: 0.85,
@@ -188,14 +203,14 @@ const SEED_STOCKS = [
 
 // Seed data for gold
 const SEED_GOLD = [
-  { id: "xau-idr", symbol: "XAU/IDR", name: "Gold Spot (IDR)", type: "gold_spot", unit: "gram", basePrice: 1150000, volatility: 0.008 },
-  { id: "xau-usd", symbol: "XAU/USD", name: "Gold Spot (USD)", type: "gold_spot", unit: "troy_ounce", basePrice: 2350, volatility: 0.008 },
-  { id: "gold-mini", symbol: "GCM", name: "Gold Mini Futures", type: "gold_futures", unit: "troy_ounce", basePrice: 2380, volatility: 0.012 },
-  { id: "gold-1g", symbol: "AU1G", name: "Gold 1 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 1160000, volatility: 0.008 },
-  { id: "gold-5g", symbol: "AU5G", name: "Gold 5 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 5750000, volatility: 0.008 },
-  { id: "gold-10g", symbol: "AU10G", name: "Gold 10 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 11450000, volatility: 0.008 },
-  { id: "gold-25g", symbol: "AU25G", name: "Gold 25 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 28600000, volatility: 0.008 },
-  { id: "gold-50g", symbol: "AU50G", name: "Gold 50 Gram (IDR)", type: "gold_spot", unit: "gram", basePrice: 57000000, volatility: 0.008 },
+  { id: "xau-idr", symbol: "XAU/IDR", name: "Gold Spot (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=GOLD&background=FFD700&color=333", basePrice: 1150000, volatility: 0.008 },
+  { id: "xau-usd", symbol: "XAU/USD", name: "Gold Spot (USD)", type: "gold_spot", unit: "troy_ounce", image: "https://ui-avatars.com/api/?name=GOLD&background=FFD700&color=333", basePrice: 2350, volatility: 0.008 },
+  { id: "gold-mini", symbol: "GCM", name: "Gold Mini Futures", type: "gold_futures", unit: "troy_ounce", image: "https://ui-avatars.com/api/?name=GCM&background=FFA500&color=fff", basePrice: 2380, volatility: 0.012 },
+  { id: "gold-1g", symbol: "AU1G", name: "Gold 1 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU1G&background=FFD700&color=333", basePrice: 1160000, volatility: 0.008 },
+  { id: "gold-5g", symbol: "AU5G", name: "Gold 5 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU5G&background=FFD700&color=333", basePrice: 5750000, volatility: 0.008 },
+  { id: "gold-10g", symbol: "AU10G", name: "Gold 10 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU10G&background=FFD700&color=333", basePrice: 11450000, volatility: 0.008 },
+  { id: "gold-25g", symbol: "AU25G", name: "Gold 25 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU25G&background=FFD700&color=333", basePrice: 28600000, volatility: 0.008 },
+  { id: "gold-50g", symbol: "AU50G", name: "Gold 50 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU50G&background=FFD700&color=333", basePrice: 57000000, volatility: 0.008 },
 ];
 
 async function fetchFromCoinGecko(endpoint: string) {
@@ -745,6 +760,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     clients.add(ws);
     console.log('Client connected to WebSocket');
 
+    ws.isAlive = true;
+
+    ws.on('pong', () => {
+      ws.isAlive = true;
+    });
+
     ws.on('close', () => {
       clients.delete(ws);
       console.log('Client disconnected from WebSocket');
@@ -761,10 +782,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const message = JSON.stringify(data);
     clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
+        try {
+          client.send(message);
+        } catch (err) {
+          console.error('Error sending WebSocket message, removing client:', err);
+          clients.delete(client);
+        }
       }
     });
   }
+
+  // Ping all clients every 30 seconds to detect dead connections
+  setInterval(() => {
+    clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN && !client.isAlive) {
+        client.terminate();
+      }
+      client.isAlive = false;
+      if (client.readyState === WebSocket.OPEN) {
+        client.ping();
+      }
+    });
+  }, 30000);
 
   // Initialize data and set up periodic updates
   let isInitialized = false;
@@ -796,6 +835,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }
 
+  // Real-time update wrappers that broadcast after fetching
+  async function updateAndBroadcastCrypto() {
+    const data = await updateCryptocurrencyData();
+    if (data && data.length > 0) {
+      await checkPriceAlerts(data);
+      broadcast({ type: 'price_update', data: data.slice(0, 20) });
+    }
+  }
+
+  async function updateAndBroadcastFunds() {
+    await updateMutualFundData();
+    const funds = await storage.getMutualFunds();
+    broadcast({ type: 'fund_update', data: funds });
+  }
+
+  async function updateAndBroadcastStocks() {
+    await updateStockData();
+    const stocks = await storage.getStocks();
+    broadcast({ type: 'stock_update', data: stocks });
+  }
+
+  async function updateAndBroadcastGold() {
+    await updateGoldData();
+    const gold = await storage.getAllGold();
+    broadcast({ type: 'gold_update', data: gold });
+  }
+
+  async function updateAndBroadcastCurrency() {
+    await updateCurrencyRates();
+    const rates = await storage.getAllCurrencyRates();
+    broadcast({ type: 'currency_update', data: rates });
+  }
+
   // Initial data fetch
   initializeAndUpdate().catch(err => console.error("Initial fetch failed:", err));
 
@@ -817,11 +889,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
   updateStockData().catch(err => console.error("Stock update failed:", err));
   updateGoldData().catch(err => console.error("Gold update failed:", err));
 
-  // Set up periodic updates every 5 minutes to avoid rate limits
-  setInterval(initializeAndUpdate, 300000);
-  setInterval(updateMutualFundData, 3600000); // Update funds every hour
-  setInterval(updateStockData, 3600000); // Update stocks every hour
-  setInterval(updateGoldData, 3600000); // Update gold every hour
+  // Real-time periodic updates for all asset classes
+  setInterval(updateAndBroadcastCrypto, 60000);   // Crypto: every 1 minute (CoinGecko rate limits)
+  setInterval(updateAndBroadcastFunds, 60000);    // Funds: every 1 minute
+  setInterval(updateAndBroadcastStocks, 60000);    // Stocks: every 1 minute
+  setInterval(updateAndBroadcastGold, 60000);     // Gold: every 1 minute
+  setInterval(updateAndBroadcastCurrency, 60000); // Currency: every 1 minute
+
+  // Real-time price tick simulation every 5 seconds for smooth live updates
+  setInterval(async () => {
+    try {
+      const cryptos = await storage.getCryptocurrencies();
+      const stocks = await storage.getStocks();
+      const funds = await storage.getMutualFunds();
+      const goldItems = await storage.getAllGold();
+
+      const tick: Record<string, any> = {};
+
+      cryptos.forEach(c => {
+        const vol = 0.015;
+        const change = (Math.random() - 0.5) * vol * 2;
+        const oldPrice = parseFloat(c.current_price);
+        const newPrice = oldPrice * (1 + change);
+        tick[c.id] = {
+          ...c,
+          current_price: newPrice.toFixed(2),
+          price_change_24h: ((parseFloat(c.price_change_24h || '0') + oldPrice * change * 0.01)).toFixed(2),
+          price_change_percentage_24h: ((parseFloat(c.price_change_percentage_24h || '0') + change * 100 * 0.05)).toFixed(2),
+        };
+      });
+
+      stocks.forEach(s => {
+        const vol = 0.005;
+        const change = (Math.random() - 0.5) * vol * 2;
+        const oldPrice = parseFloat(s.current_price);
+        const newPrice = oldPrice * (1 + change);
+        tick[s.id] = {
+          ...s,
+          current_price: newPrice.toFixed(2),
+          change_1d: (parseFloat(s.change_1d || '0') + change * 100 * 0.01).toFixed(2),
+        };
+      });
+
+      funds.forEach(f => {
+        const vol = 0.002;
+        const change = (Math.random() - 0.5) * vol * 2;
+        const oldNav = parseFloat(f.nav);
+        const newNav = oldNav * (1 + change);
+        tick[f.id] = {
+          ...f,
+          nav: newNav.toFixed(4),
+          change_1d: (parseFloat(f.change_1d || '0') + change * 100 * 0.01).toFixed(2),
+        };
+      });
+
+      goldItems.forEach(g => {
+        const vol = 0.003;
+        const change = (Math.random() - 0.5) * vol * 2;
+        const oldPrice = parseFloat(g.current_price);
+        const newPrice = oldPrice * (1 + change);
+        tick[g.id] = {
+          ...g,
+          current_price: newPrice.toFixed(2),
+          change_1d: (parseFloat(g.change_1d || '0') + change * 100 * 0.01).toFixed(2),
+        };
+      });
+
+      if (Object.keys(tick).length > 0) {
+        broadcast({ type: 'price_tick', data: tick });
+      }
+    } catch (err) {
+      // Silently ignore tick errors to prevent crash loops
+    }
+  }, 5000);
 
   // API Routes
   app.get("/api/cryptocurrencies", async (req, res) => {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
 import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
 import { useFundHistory } from "@/hooks/useCryptoData";
+import { useWebSocketContext } from "@/hooks/useWebSocket";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -51,6 +52,7 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("1Y");
   const [chartType, setChartType] = useState<'line' | 'candlestick'>('line');
   const { currency } = useCurrency();
+  const { lastTick } = useWebSocketContext();
   const {
     data: fundHistory,
     isLoading,
@@ -125,8 +127,10 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
         const prevNav = index > 0 ? parseFloat(fundHistory[index - 1].nav) : nav;
         const open = prevNav;
         const close = nav;
-        const high = Math.max(open, close) * (1 + Math.random() * 0.005);
-        const low = Math.min(open, close) * (1 - Math.random() * 0.005);
+        const priceHash = Math.abs(nav * 1000 + index * 37) % 1000;
+        const offset = (priceHash / 1000) * 0.005;
+        const high = Math.max(open, close) * (1 + offset);
+        const low = Math.min(open, close) * (1 - offset);
         return {
           x: new Date(point.date!).getTime(),
           o: open,

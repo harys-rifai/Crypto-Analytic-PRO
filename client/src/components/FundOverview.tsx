@@ -88,9 +88,13 @@ export default function FundOverview({ funds: initialFunds }: FundOverviewProps)
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold">
-                    {fund.symbol || "?"}
-                  </div>
+                  {fund.image ? (
+                    <img src={fund.image} alt={fund.name} className="w-8 h-8 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold">
+                      {fund.symbol || "?"}
+                    </div>
+                  )}
                   <div>
                     <h4 className="font-semibold text-sm">{fund.name}</h4>
                     <p className="text-xs text-muted-foreground">

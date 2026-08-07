@@ -103,8 +103,10 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
         const prevPrice = index > 0 ? parseFloat(priceHistory[index - 1].price) : price;
         const open = prevPrice;
         const close = price;
-        const high = Math.max(open, close) * (1 + Math.random() * 0.01);
-        const low = Math.min(open, close) * (1 - Math.random() * 0.01);
+        const priceHash = Math.abs(price * 1000 + index * 37) % 1000;
+        const offset = (priceHash / 1000) * 0.01;
+        const high = Math.max(open, close) * (1 + offset);
+        const low = Math.min(open, close) * (1 - offset);
         return {
           x: new Date(point.timestamp!).getTime(),
           o: open,
