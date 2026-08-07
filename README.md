@@ -1,431 +1,108 @@
-# CryptoAnalytic Indonesia Extension
+# InvestAnalytic Indonesia
 
-## Overview
+A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, **Reksa Dana (Mutual Funds)**, **Stocks**, and **Gold** from a single dashboard.
 
-CryptoAnalytic is evolving from a cryptocurrency tracker into a comprehensive Indonesian investment platform. In addition to real-time cryptocurrency data, the platform will support Indonesian Reksa Dana (Mutual Funds), enabling users to monitor multiple asset classes from a single dashboard.
+## Asset Classes
 
-## New Vision
-
-**CryptoAnalytic → InvestAnalytic Indonesia**
-
-Supported Asset Classes:
-
-- Cryptocurrency
-- Reksa Dana (Mutual Funds)
-- Stocks (Future Enhancement)
-- Gold (Future Enhancement)
-
----
-
-# New Features
-
-## 1. Indonesian Cryptocurrency Support
-
-### IDR Pricing
-
-Display cryptocurrency prices directly in Indonesian Rupiah (IDR).
-
-Supported pairs:
-
-- BTC/IDR
-- ETH/IDR
-- SOL/IDR
-- BNB/IDR
-- XRP/IDR
-- Other CoinGecko-supported assets
-
-### Currency Switching
-
-Users can switch between:
-
-- IDR
-- USD
-- SGD
-
-### Market Overview
-
-- Total market capitalization
-- Trading volume
-- Market dominance
-- Top gainers and losers
-
----
-
-## 2. Reksa Dana Support
-
-### Fund Information
-
-Display:
-
-- Fund Name
-- Fund Manager
-- NAV/Unit
-- Daily Return
-- Monthly Return
-- Annual Return
-- Last Updated Date
-- Assets Under Management (AUM)
-
-### Example Funds
-
-- Schroder Dana Prestasi Plus
-- Sucorinvest Money Market Fund
-- BCA Dana Kas
-- Mandiri Investa Pasar Uang
-- Batavia Dana Kas Maxima
-
-### Historical Performance
-
-Interactive charts for:
-
-- 1 Month
-- 3 Months
-- 6 Months
-- 1 Year
-- 3 Years
-- All Time
-
----
-
-# Technical Architecture
-
-## Asset Model
-
-```ts
-type AssetType =
-  | "crypto"
-  | "reksadana"
-  | "stock"
-  | "gold";
-```
-
-```ts
-interface Asset {
-  id: string;
-  name: string;
-  symbol: string;
-  type: AssetType;
-  price: number;
-  currency: string;
-  change24h: number;
-  updatedAt: Date;
-}
-```
-
----
-
-## Database Schema
-
-```ts
-export const assets = pgTable("assets", {
-  id: serial("id").primaryKey(),
-  symbol: text("symbol").notNull(),
-  name: text("name").notNull(),
-  type: text("type").notNull(),
-  currency: text("currency").default("IDR"),
-  price: numeric("price"),
-  change24h: numeric("change_24h"),
-  updatedAt: timestamp("updated_at"),
-});
-```
-
----
-
-## Portfolio Schema
-
-```ts
-export const portfolios = pgTable("portfolios", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  assetId: integer("asset_id").notNull(),
-  quantity: numeric("quantity").notNull(),
-  buyPrice: numeric("buy_price"),
-});
-```
-
----
-
-# Data Providers
-
-## Cryptocurrency
-
-### Primary Source
-
-- CoinGecko API
-
-Features:
-
-- Real-time prices
-- Historical charts
-- Market capitalization
-- Trading volume
-
-Example:
-
-```http
-GET https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr
-```
-
----
-
-## Reksa Dana
-
-Recommended sources:
-
-### Option 1
-
-- Bareksa API (if available)
-
-### Option 2
-
-- Yahoo Finance
-
-### Option 3
-
-- Manual NAV Import via CSV
-
-Example CSV:
-
-```csv
-Date,NAV
-2026-08-01,5123.22
-2026-08-02,5131.51
-2026-08-03,5142.90
-```
-
----
-
-# User Interface Enhancements
-
-## Dashboard Layout
-
-```text
-Market Overview
-├── Crypto
-├── Reksa Dana
-├── Stocks
-└── Gold
-```
-
----
-
-## Watchlist
-
-Users can save any supported asset.
-
-Examples:
-
-```text
-Bitcoin (BTC)
-Ethereum (ETH)
-Solana (SOL)
-
-BCA Dana Kas
-Schroder Dana Prestasi Plus
-Sucorinvest Money Market Fund
-```
-
----
-
-## Portfolio Tracking
-
-Track investment performance across asset classes.
-
-Example:
-
-```json
-{
-  "asset": "Bitcoin",
-  "quantity": 0.5,
-  "buyPrice": 950000000,
-  "currentPrice": 1100000000
-}
-```
-
-Displayed metrics:
-
-- Total Value
-- Profit/Loss
-- Return Percentage
-- Asset Allocation
-
----
-
-# Currency Conversion
-
-Enable automatic conversion between:
-
-- IDR
-- USD
-- SGD
-
-Example:
-
-```ts
-priceInUSD = priceInIDR / usdIdrRate;
-```
-
----
-
-# Additional Indonesian Features
-
-## Tax Awareness
-
-Provide informational calculations for:
-
-- Crypto gains
-- Investment profits
-- Transaction summaries
-
-## Indonesian Market Focus
-
-Highlight:
-
-- Popular Indonesian cryptocurrencies
-- Top-performing Reksa Dana
-- Local investment trends
-
-## Mobile Experience
-
-Provide responsive layouts for:
-
-- Desktop
-- Tablet
-- Mobile
-
----
-
-# Updated Feature List
-
-- Real-Time Crypto Prices
-- Indonesian Rupiah (IDR) Support
-- Historical Crypto Charts
-- Reksa Dana Tracking
-- Portfolio Management
-- Watchlists
-- Price Alerts
-- Multi-Currency Support
-- Market Summary Dashboard
-- Responsive Design
-
----
-
-# Recommended Tech Stack
-
-### Frontend
-
-- React
-- TypeScript
-- Tailwind CSS
-- Recharts
-- Chart.js
-- Wouter
-
-### Backend
-
-- Node.js
-- Express
-- TypeScript
-
-### Database
-
-- PostgreSQL
-- Drizzle ORM
-
-### Real-Time
-
-- WebSocket (ws)
-
-### Data Sources
-
-- CoinGecko (Crypto)
-- Bareksa API / Yahoo Finance (Reksa Dana)
-- Exchange Rate API (Currency Conversion)
-
----
-
-# Future Roadmap
-
-### Phase 1
-
-✅ IDR Cryptocurrency Support  
-✅ Multi-Currency Display  
-✅ Indonesia-Focused Dashboard
-
-### Phase 2
-
-✅ Reksa Dana Tracking  
-✅ NAV History Charts  
-✅ Reksa Dana Watchlists
-
-### Phase 3
-
-✅ Portfolio Management  
-✅ Performance Analytics  
-✅ Asset Allocation Visualization
-
-### Phase 4
-
-✅ Indonesian Stocks Integration  
-✅ Gold Price Tracking  
-✅ Investment Insights & Recommendations
-
----
-
-## Conclusion
-
-By expanding CryptoAnalytic into an Indonesian-focused investment tracking platform, users can monitor cryptocurrencies and Reksa Dana in one unified dashboard. This approach increases engagement, broadens the user base, and transforms the application from a crypto tracker into a complete personal investment management solution for the Indonesian market.
-
-| Light Theme | Dark Theme |
-|-------------|------------|
-| <img src="img/dasboard.png" alt="Dashboard Light" width="400"> | <img src="img/dasboard-dark.png" alt="Dashboard Dark" width="400"> |
+- **Cryptocurrency** — Real-time prices, charts, watchlists, and price alerts
+- **Reksa Dana (Mutual Funds)** — NAV tracking, historical performance, and fund watchlists
+- **Stocks** *(Future Enhancement)*
+- **Gold** *(Future Enhancement)*
 
 ## Features
 
-- **Real-Time Prices** — Live cryptocurrency market data with automatic updates via WebSocket
-- **Historical Charts** — Interactive price history charts across multiple time ranges (1h, 24h, 7d, 30d, 90d, 1y)
-- **Watchlists** — Save and manage your favorite cryptocurrencies
-- **Price Alerts** — Set alerts for price movements and percentage changes
-- **Market Summary** — Global market overview including total market cap, volume, and dominance
-- **Responsive Design** — Optimized for desktop, tablet, and mobile devices
+- **Authentication** — Secure login with session-based auth
+- **Real-Time Prices** — Live cryptocurrency market data with automatic updates
+- **Historical Charts** — Interactive NAV/price history across multiple time ranges
+- **Watchlists** — Save and favorite cryptocurrencies and mutual funds
+- **Price Alerts** — Get notified when prices hit your targets
+- **Portfolio Tracking** — Monitor holdings and performance across asset classes
+- **Currency Conversion** — Switch between IDR, USD, and SGD
+- **Market Summary** — Global market cap, volume, and dominance stats
+- **Responsive Design** — Works on desktop, tablet, and mobile
+- **PostgreSQL Storage** — Persistent data with SQLite fallback when offline
+- **Redis Support** — Optional Redis session store for production
 
 ## Tech Stack
 
-- **Frontend**: React, TypeScript, Tailwind CSS, Chart.js, Recharts, Wouter
-- **Backend**: Express, Node.js, TypeScript
-- **Database**: PostgreSQL with Drizzle ORM
-- **Real-Time**: WebSocket (ws)
-- **Data Source**: CoinGecko API
+**Frontend**
+- React + TypeScript
+- Tailwind CSS + shadcn/ui
+- Chart.js
+- Wouter (routing)
+- TanStack Query
+
+**Backend**
+- Express + TypeScript
+- Passport.js (authentication)
+- WebSocket (real-time updates)
+
+**Database**
+- PostgreSQL (primary)
+- SQLite (fallback)
+- Drizzle ORM
+
+**Data Sources**
+- CoinGecko API (cryptocurrency)
+- Yahoo Finance / seeded data (Reksa Dana)
+- ExchangeRate API (currency conversion)
 
 ## Prerequisites
 
 - Node.js >= 18
-- PostgreSQL database
-- npm or yarn
+- PostgreSQL (optional — SQLite fallback available)
+- Redis (optional — falls back to memory store)
 
 ## Getting Started
 
-1. Clone the repository
-2. Install dependencies:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/harys-rifai/Crypto-Analytic-PRO.git
+   cd Crypto-Analytic-PRO
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
-3. Configure environment variables in `.env`:
+
+3. **Configure environment variables** in `.env`:
    ```env
-   DATABASE_URL=postgresql://username:password@localhost:5432/cryptopulse
+   # Database (PostgreSQL)
+   DATABASE_URL=postgresql://postgres:Password09!@localhost:5008/cryptoanalyze
+
+   # Redis (optional)
+   REDIS_HOST=127.0.0.1
+   REDIS_PORT=6379
+
+   # Server
    PORT=5000
    NODE_ENV=development
-   SESSION_SECRET=your-secret-key
+   SESSION_SECRET=your-secret-key-here
    ```
-4. Start the development server:
+
+4. **Push database schema**
+   ```bash
+   npm run db:push
+   ```
+
+5. **Start the development server**
    ```bash
    npm run dev
    ```
-   Or use the run script:
+   Or use the convenience script:
    ```bash
    sh run.sh
    ```
-5. Open http://localhost:5000 in your browser
+
+6. **Open the app**
+   ```
+   http://localhost:5000
+   ```
+
+7. **Login with default credentials**
+   - Username: `admin`
+   - Password: `admin123`
 
 ## Scripts
 
@@ -436,14 +113,71 @@ By expanding CryptoAnalytic into an Indonesian-focused investment tracking platf
 | `npm run start` | Start production server |
 | `npm run check` | TypeScript type checking |
 | `npm run db:push` | Push database schema changes |
+| `sh run.sh` | Kill existing process, check DB, and start server |
+| `sh push.sh` | Stage, commit, and push to GitHub |
 
 ## Project Structure
 
 ```
-server/          - Express API server, WebSocket, routes
-client/src/      - React frontend application
-shared/          - Shared types, schemas, and database models
+server/
+  index.ts           — Express server entry point
+  routes.ts          — API routes and WebSocket handlers
+  auth.ts            — Passport authentication setup
+  storage.ts         — Storage initialization (Postgres → SQLite → Memory)
+  storage-pg.ts      — PostgreSQL storage implementation
+  storage-sqlite.ts  — SQLite fallback storage
+  storage-mem.ts     — In-memory fallback storage
+  redis.ts           — Redis session store setup
+  vite.ts            — Vite dev/production setup
+
+client/src/
+  pages/
+    login.tsx        — Login page
+    dashboard.tsx    — Main dashboard
+  components/
+    Header.tsx       — Top navigation with search and user menu
+    FundChart.tsx    — Reksa Dana NAV chart
+    FundTable.tsx    — Reksa Dana fund list
+    FundOverview.tsx — Fund summary cards
+    PriceChart.tsx   — Crypto price chart
+    CryptocurrencyTable.tsx — Crypto market table
+    Sidebar.tsx      — Sidebar navigation
+  hooks/
+    useAuth.ts       — Authentication hook
+    useCryptoData.tsx — Data fetching hooks
+
+shared/
+  schema.ts          — Shared database schema and types
 ```
+
+## Database Schema
+
+The app uses a unified schema supporting multiple asset types:
+
+- `users` — User accounts
+- `cryptocurrencies` — Crypto market data
+- `price_history` — Historical crypto prices
+- `mutual_funds` — Reksa Dana data
+- `mutual_fund_history` — Historical NAV data
+- `watchlists` — Crypto watchlists
+- `fund_watchlists` — Fund watchlists
+- `price_alerts` — Price alert configurations
+- `portfolios` — User portfolio holdings
+- `currency_rates` — Currency conversion rates
+
+## Storage Fallback Strategy
+
+The app automatically falls back through storage layers:
+
+1. **PostgreSQL** — Primary storage when `DATABASE_URL` is configured and reachable
+2. **SQLite** — Local `localdb.sqlite` file when PostgreSQL is unavailable
+3. **In-Memory** — Temporary storage when neither database is available
+
+This ensures the app always starts, even without a database connection.
+
+## Redis Support
+
+Redis is used for session storage in production. If Redis is unavailable, the app falls back to Express's default memory store and continues running.
 
 ## License
 
