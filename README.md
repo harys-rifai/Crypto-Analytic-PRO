@@ -13,6 +13,7 @@ A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, 
 
 - **Authentication** — Secure login with session-based auth
 - **Real-Time Prices** — Live cryptocurrency, stock, gold, and fund market data with automatic updates
+  - Gold prices sourced from goldprice.dev with live XAU/USD spot rates
 - **Historical Charts** — Interactive price/NAV history across multiple time ranges with line and candlestick views
 - **Watchlists** — Save and favorite cryptocurrencies, mutual funds, stocks, and gold
 - **Price Alerts** — Get notified when prices hit your targets
@@ -20,6 +21,7 @@ A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, 
 - **Currency Conversion** — Switch between IDR, USD, and SGD
 - **Market Summary** — Global market cap, volume, and dominance stats
 - **Responsive Design** — Works on desktop, tablet, and mobile
+- **Professional Header** — Sticky navigation with tab-based asset switching, global search, notifications, and user menu
 - **PostgreSQL Storage** — Persistent data with SQLite fallback when offline
 - **Redis Support** — Optional Redis session store for production
 
