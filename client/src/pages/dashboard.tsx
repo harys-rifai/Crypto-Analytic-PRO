@@ -8,6 +8,7 @@ import PriceChart from "@/components/PriceChart";
 import FundChart from "@/components/FundChart";
 import StockChart from "@/components/StockChart";
 import GoldChart from "@/components/GoldChart";
+import IHSGOverview from "@/components/IHSGOverview";
 import CryptocurrencyTable from "@/components/CryptocurrencyTable";
 import FundTable from "@/components/FundTable";
 import StockTable from "@/components/StockTable";
@@ -140,6 +141,11 @@ export default function Dashboard() {
           </>
         ) : activeTab === "stock" ? (
           <>
+            {/* IHSG Market Index Overview */}
+            {stocks && (
+              <IHSGOverview ihsg={stocks.find((s) => s.id === "ihsg")} />
+            )}
+
             {/* Stock Market Overview */}
             <StockOverview stocks={stocks || []} />
 

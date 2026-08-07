@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js";
 import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
 import { usePriceHistory } from "@/hooks/useCryptoData";
+import { useWebSocketContext } from "@/hooks/useWebSocket";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -68,6 +69,7 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('24h');
   const [chartType, setChartType] = useState<'line' | 'candlestick'>('line');
   const { data: priceHistory, isLoading, refetch } = usePriceHistory(cryptoId, TIME_FILTER_HOURS[timeFilter]);
+  const { lastTick } = useWebSocketContext();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const uniqueCanvasId = `price-chart-${cryptoId}-${timeFilter}`;
@@ -280,6 +282,29 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
       }
     };
   }, [priceHistory, timeFilter, chartType, cryptoId]);
+
+  useEffect(() => {
+    if (!chartRef.current || !lastTick) return;
+    const tick = lastTick[cryptoId];
+    if (!tick) return;
+    const chart = chartRef.current;
+    const newData = chart.data.datasets[0].data as any[];
+    if (chartType === "candlestick") {
+      if (newData.length > 0) {
+        const lastCandle = newData[newData.length - 1] as any;
+        const newPrice = parseFloat(tick.current_price);
+        lastCandle.c = newPrice;
+        lastCandle.h = Math.max(lastCandle.h, newPrice);
+        lastCandle.l = Math.min(lastCandle.l, newPrice);
+        chart.update();
+      }
+    } else {
+      if (newData.length > 0) {
+        newData[newData.length - 1] = parseFloat(tick.current_price);
+        chart.update();
+      }
+    }
+  }, [lastTick, chartType, cryptoId]);
 
   if (isLoading) {
     return (

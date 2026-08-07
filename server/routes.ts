@@ -44,7 +44,7 @@ const SEED_FUNDS = [
     name: "Schroder Dana Prestasi Plus",
     category: "Pendapatan Tetap",
     manager: "Schroder Investment Management",
-    image: "https://ui-avatars.com/api/?name=SDPP&background=003366&color=fff",
+    image: "https://logo.clearbit.com/schroders.com?size=128",
     nav: 104.12,
     change_1d: 0.12,
     change_1w: 0.38,
@@ -61,7 +61,7 @@ const SEED_FUNDS = [
     name: "Sucorinvest Money Market Fund",
     category: "Pasar Uang",
     manager: "Sucorinvest",
-    image: "https://ui-avatars.com/api/?name=SISMM&background=CC0000&color=fff",
+    image: "https://logo.clearbit.com/sucorinvest.com?size=128",
     nav: 110.75,
     change_1d: 0.05,
     change_1w: 0.27,
@@ -78,7 +78,7 @@ const SEED_FUNDS = [
     name: "BCA Dana Kas",
     category: "Pasar Uang",
     manager: "PT Bank Central Asia",
-    image: "https://ui-avatars.com/api/?name=BCDK&background=0066CC&color=fff",
+    image: "https://logo.clearbit.com/bankbca.com?size=128",
     nav: 514.33,
     change_1d: 0.03,
     change_1w: 0.15,
@@ -95,7 +95,7 @@ const SEED_FUNDS = [
     name: "Mandiri Investa Pasar Uang",
     category: "Pasar Uang",
     manager: "Mandiri Investment Management",
-    image: "https://ui-avatars.com/api/?name=MIPO&background=FFCC00&color=333",
+    image: "https://logo.clearbit.com/bankmandiri.co.id?size=128",
     nav: 498.76,
     change_1d: 0.04,
     change_1w: 0.18,
@@ -112,7 +112,7 @@ const SEED_FUNDS = [
     name: "Batavia Dana Kas Maxima",
     category: "Pasar Uang",
     manager: "Batavia Asset Management",
-    image: "https://ui-avatars.com/api/?name=BDKM&background=8B4513&color=fff",
+    image: "https://logo.clearbit.com/bataviasekuritas.com?size=128",
     nav: 312.45,
     change_1d: 0.06,
     change_1w: 0.25,
@@ -129,7 +129,7 @@ const SEED_FUNDS = [
     name: "Danareksa Saham Samsung",
     category: "Saham",
     manager: "PT Danareksa Investama",
-    image: "https://ui-avatars.com/api/?name=DSS&background=1428A0&color=fff",
+    image: "https://logo.clearbit.com/danareksa.com?size=128",
     nav: 235.68,
     change_1d: -0.85,
     change_1w: -2.14,
@@ -146,7 +146,7 @@ const SEED_FUNDS = [
     name: "BIBI Saham Unilever Indonesia",
     category: "Saham",
     manager: "PT Batavia Investmentindo",
-    image: "https://ui-avatars.com/api/?name=BSU&background=00AA00&color=fff",
+    image: "https://logo.clearbit.com/batavia.co.id?size=128",
     nav: 156.30,
     change_1d: 0.42,
     change_1w: 1.23,
@@ -163,7 +163,7 @@ const SEED_FUNDS = [
     name: "Star Capital Dana Emas",
     category: "Logam Mulia",
     manager: "Star Capital Sekuritas",
-    image: "https://ui-avatars.com/api/?name=SCE&background=FFD700&color=333",
+    image: "https://logo.clearbit.com/starcapital.sekuritas.com?size=128",
     nav: 89.15,
     change_1d: -0.12,
     change_1w: 0.85,
@@ -189,28 +189,102 @@ const SEED_CURRENCY_RATES = [
 
 // Seed data for Indonesian stocks
 const SEED_STOCKS = [
-  { id: "bbca", symbol: "BBCA", name: "Bank Central Asia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://ui-avatars.com/api/?name=BBCA&background=0066CC&color=fff", basePrice: 8750, volatility: 0.02, change_1d: 1.2, change_1w: 2.5, change_1m: 5.1, change_1y: 15.3, pe_ratio: 18.5, eps: 472, dividend_yield: 2.1 },
-  { id: "bbri", symbol: "BBRI", name: "Bank Rakyat Indonesia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://ui-avatars.com/api/?name=BBRI&background=0066CC&color=fff", basePrice: 4520, volatility: 0.025, change_1d: -0.5, change_1w: 1.8, change_1m: 3.2, change_1y: 12.1, pe_ratio: 15.2, eps: 297, dividend_yield: 3.5 },
-  { id: "tlkm", symbol: "TLKM", name: "Telekomunikasi Indonesia Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", image: "https://ui-avatars.com/api/?name=TLKM&background=FF6600&color=fff", basePrice: 3650, volatility: 0.018, change_1d: 0.8, change_1w: -1.2, change_1m: 2.5, change_1y: 8.7, pe_ratio: 12.8, eps: 285, dividend_yield: 4.2 },
-  { id: "asii", symbol: "ASII", name: "Astra International Tbk", exchange: "IDX", sector: "Consumer Discretionary", industry: "Diversified", image: "https://ui-avatars.com/api/?name=ASII&background=CC0000&color=fff", basePrice: 5250, volatility: 0.022, change_1d: -1.1, change_1w: 0.5, change_1m: -2.3, change_1y: -5.4, pe_ratio: 10.5, eps: 500, dividend_yield: 3.8 },
-  { id: "unvr", symbol: "UNVR", name: "Unilever Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Household Products", image: "https://ui-avatars.com/api/?name=UNVR&background=00AA00&color=fff", basePrice: 3850, volatility: 0.015, change_1d: 0.3, change_1w: 1.1, change_1m: 2.8, change_1y: 6.5, pe_ratio: 22.1, eps: 174, dividend_yield: 2.5 },
-  { id: "bmri", symbol: "BMRI", name: "Bank Mandiri Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://ui-avatars.com/api/?name=BMRI&background=0066CC&color=fff", basePrice: 5250, volatility: 0.02, change_1d: 0.9, change_1w: 2.1, change_1m: 4.5, change_1y: 18.2, pe_ratio: 14.3, eps: 367, dividend_yield: 3.1 },
-  { id: "amrt", symbol: "AMRT", name: "Alfamart Retail Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Retail", image: "https://ui-avatars.com/api/?name=AMRT&background=FF0000&color=fff", basePrice: 2780, volatility: 0.02, change_1d: -0.7, change_1w: 0.9, change_1m: 1.5, change_1y: 22.4, pe_ratio: 25.6, eps: 109, dividend_yield: 0.8 },
-  { id: "goka", symbol: "GOKA", name: "Gudang Garam Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Tobacco", image: "https://ui-avatars.com/api/?name=GOKA&background=8B4513&color=fff", basePrice: 19800, volatility: 0.025, change_1d: 1.5, change_1w: 3.2, change_1m: -1.8, change_1y: -12.3, pe_ratio: 8.9, eps: 2222, dividend_yield: 5.5 },
-  { id: "indf", symbol: "INDF", name: "Indofood Sukses Makmur Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Food Products", image: "https://ui-avatars.com/api/?name=INDF&background=FF6600&color=fff", basePrice: 6350, volatility: 0.018, change_1d: 0.4, change_1w: 1.5, change_1m: 3.1, change_1y: 9.8, pe_ratio: 19.2, eps: 331, dividend_yield: 2.3 },
-  { id: "excl", symbol: "EXCL", name: "XL Axiata Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", image: "https://ui-avatars.com/api/?name=EXCL&background=FF6600&color=fff", basePrice: 2850, volatility: 0.025, change_1d: -1.8, change_1w: -2.5, change_1m: 0.8, change_1y: 5.2, pe_ratio: 11.5, eps: 248, dividend_yield: 4.8 },
+  { id: "bbca", symbol: "BBCA", name: "Bank Central Asia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://logo.clearbit.com/bankbca.com?size=128", domain: "bankbca.com", basePrice: 8750, volatility: 0.02, change_1d: 1.2, change_1w: 2.5, change_1m: 5.1, change_1y: 15.3, pe_ratio: 18.5, eps: 472, dividend_yield: 2.1 },
+  { id: "bbri", symbol: "BBRI", name: "Bank Rakyat Indonesia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://logo.clearbit.com/bankbri.co.id?size=128", domain: "bankbri.co.id", basePrice: 4520, volatility: 0.025, change_1d: -0.5, change_1w: 1.8, change_1m: 3.2, change_1y: 12.1, pe_ratio: 15.2, eps: 297, dividend_yield: 3.5 },
+  { id: "tlkm", symbol: "TLKM", name: "Telekomunikasi Indonesia Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", image: "https://logo.clearbit.com/telkom.co.id?size=128", domain: "telkom.co.id", basePrice: 3650, volatility: 0.018, change_1d: 0.8, change_1w: -1.2, change_1m: 2.5, change_1y: 8.7, pe_ratio: 12.8, eps: 285, dividend_yield: 4.2 },
+  { id: "asii", symbol: "ASII", name: "Astra International Tbk", exchange: "IDX", sector: "Consumer Discretionary", industry: "Diversified", image: "https://logo.clearbit.com/astra.co.id?size=128", domain: "astra.co.id", basePrice: 5250, volatility: 0.022, change_1d: -1.1, change_1w: 0.5, change_1m: -2.3, change_1y: -5.4, pe_ratio: 10.5, eps: 500, dividend_yield: 3.8 },
+  { id: "unvr", symbol: "UNVR", name: "Unilever Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Household Products", image: "https://logo.clearbit.com/unilever.co.id?size=128", domain: "unilever.co.id", basePrice: 3850, volatility: 0.015, change_1d: 0.3, change_1w: 1.1, change_1m: 2.8, change_1y: 6.5, pe_ratio: 22.1, eps: 174, dividend_yield: 2.5 },
+  { id: "bmri", symbol: "BMRI", name: "Bank Mandiri Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://logo.clearbit.com/bankmandiri.co.id?size=128", domain: "bankmandiri.co.id", basePrice: 5250, volatility: 0.02, change_1d: 0.9, change_1w: 2.1, change_1m: 4.5, change_1y: 18.2, pe_ratio: 14.3, eps: 367, dividend_yield: 3.1 },
+  { id: "amrt", symbol: "AMRT", name: "Alfamart Retail Indonesia Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Retail", image: "https://logo.clearbit.com/alfamart.co.id?size=128", domain: "alfamart.co.id", basePrice: 2780, volatility: 0.02, change_1d: -0.7, change_1w: 0.9, change_1m: 1.5, change_1y: 22.4, pe_ratio: 25.6, eps: 109, dividend_yield: 0.8 },
+  { id: "goka", symbol: "GOKA", name: "Gudang Garam Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Tobacco", image: "https://logo.clearbit.com/gudgangaram.com?size=128", domain: "gudanggaram.com", basePrice: 19800, volatility: 0.025, change_1d: 1.5, change_1w: 3.2, change_1m: -1.8, change_1y: -12.3, pe_ratio: 8.9, eps: 2222, dividend_yield: 5.5 },
+  { id: "indf", symbol: "INDF", name: "Indofood Sukses Makmur Tbk", exchange: "IDX", sector: "Consumer Staples", industry: "Food Products", image: "https://logo.clearbit.com/indofood.co.id?size=128", domain: "indofood.co.id", basePrice: 6350, volatility: 0.018, change_1d: 0.4, change_1w: 1.5, change_1m: 3.1, change_1y: 9.8, pe_ratio: 19.2, eps: 331, dividend_yield: 2.3 },
+  { id: "excl", symbol: "EXCL", name: "XL Axiata Tbk", exchange: "IDX", sector: "Communication Services", industry: "Telecommunications", image: "https://logo.clearbit.com/xl.co.id?size=128", domain: "xl.co.id", basePrice: 2850, volatility: 0.025, change_1d: -1.8, change_1w: -2.5, change_1m: 0.8, change_1y: 5.2, pe_ratio: 11.5, eps: 248, dividend_yield: 4.8 },
 ];
+
+// IHSG (Indonesia Composite Index) seed data
+const SEED_IHSG = {
+  id: "ihsg",
+  symbol: "IHSG",
+  name: "Indeks Harga Saham Gatotkaca",
+  exchange: "IDX",
+  sector: "Market Index",
+  industry: "Index",
+  image: "https://logo.clearbit.com/idx.co.id?size=128",
+  basePrice: 2450,
+  volatility: 0.01,
+};
+
+async function updateIHSGData() {
+  try {
+    const response = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/^JKSE?range=2d&interval=1d');
+    if (response.ok) {
+      const yahooData = await response.json();
+      const result = yahooData?.chart?.result?.[0];
+      if (result && result.meta) {
+        const currentPrice = result.meta.previousClose || SEED_IHSG.basePrice;
+        await storage.upsertStock({
+          id: SEED_IHSG.id,
+          symbol: SEED_IHSG.symbol,
+          name: SEED_IHSG.name,
+          exchange: SEED_IHSG.exchange,
+          sector: SEED_IHSG.sector,
+          industry: SEED_IHSG.industry,
+          image: SEED_IHSG.image,
+          current_price: currentPrice.toString(),
+          change_1d: result.meta.regularMarketChangePercent?.toString() || ((Math.random() - 0.5) * 2).toFixed(2),
+          change_1w: (Math.random() * 4 - 2).toFixed(2),
+          change_1m: (Math.random() * 8 - 4).toFixed(2),
+          change_1y: (Math.random() * 20 - 10).toFixed(2),
+          market_cap: "0",
+          volume: result.meta.regularMarketVolume?.toString() || "0",
+          high_24h: (currentPrice * 1.01).toString(),
+          low_24h: (currentPrice * 0.99).toString(),
+          pe_ratio: null,
+          eps: null,
+          dividend_yield: null,
+        });
+        return { id: SEED_IHSG.id, symbol: SEED_IHSG.symbol, name: SEED_IHSG.name, image: SEED_IHSG.image, current_price: currentPrice.toString(), change_1d: result.meta.regularMarketChangePercent?.toString() || "0" };
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching IHSG data:', error);
+  }
+
+  const currentPrice = SEED_IHSG.basePrice * (0.98 + Math.random() * 0.04);
+  await storage.upsertStock({
+    id: SEED_IHSG.id,
+    symbol: SEED_IHSG.symbol,
+    name: SEED_IHSG.name,
+    exchange: SEED_IHSG.exchange,
+    sector: SEED_IHSG.sector,
+    industry: SEED_IHSG.industry,
+    image: SEED_IHSG.image,
+    current_price: currentPrice.toFixed(2),
+    change_1d: ((Math.random() - 0.5) * 2).toFixed(2),
+    change_1w: ((Math.random() - 0.5) * 4).toFixed(2),
+    change_1m: ((Math.random() - 0.5) * 8).toFixed(2),
+    change_1y: ((Math.random() - 0.5) * 20).toFixed(2),
+    market_cap: "0",
+    volume: "0",
+    high_24h: (currentPrice * 1.01).toString(),
+    low_24h: (currentPrice * 0.99).toString(),
+    pe_ratio: null,
+    eps: null,
+    dividend_yield: null,
+  });
+  return { id: SEED_IHSG.id, symbol: SEED_IHSG.symbol, name: SEED_IHSG.name, image: SEED_IHSG.image, current_price: currentPrice.toFixed(2), change_1d: "0" };
+}
 
 // Seed data for gold
 const SEED_GOLD = [
-  { id: "xau-idr", symbol: "XAU/IDR", name: "Gold Spot (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=GOLD&background=FFD700&color=333", basePrice: 1150000, volatility: 0.008 },
-  { id: "xau-usd", symbol: "XAU/USD", name: "Gold Spot (USD)", type: "gold_spot", unit: "troy_ounce", image: "https://ui-avatars.com/api/?name=GOLD&background=FFD700&color=333", basePrice: 2350, volatility: 0.008 },
-  { id: "gold-mini", symbol: "GCM", name: "Gold Mini Futures", type: "gold_futures", unit: "troy_ounce", image: "https://ui-avatars.com/api/?name=GCM&background=FFA500&color=fff", basePrice: 2380, volatility: 0.012 },
-  { id: "gold-1g", symbol: "AU1G", name: "Gold 1 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU1G&background=FFD700&color=333", basePrice: 1160000, volatility: 0.008 },
-  { id: "gold-5g", symbol: "AU5G", name: "Gold 5 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU5G&background=FFD700&color=333", basePrice: 5750000, volatility: 0.008 },
-  { id: "gold-10g", symbol: "AU10G", name: "Gold 10 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU10G&background=FFD700&color=333", basePrice: 11450000, volatility: 0.008 },
-  { id: "gold-25g", symbol: "AU25G", name: "Gold 25 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU25G&background=FFD700&color=333", basePrice: 28600000, volatility: 0.008 },
-  { id: "gold-50g", symbol: "AU50G", name: "Gold 50 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://ui-avatars.com/api/?name=AU50G&background=FFD700&color=333", basePrice: 57000000, volatility: 0.008 },
+  { id: "xau-idr", symbol: "XAU/IDR", name: "Gold Spot (IDR)", type: "gold_spot", unit: "gram", image: "https://cdn-icons-png.flaticon.com/512/1277/1277510.png", basePrice: 1150000, volatility: 0.008 },
+  { id: "xau-usd", symbol: "XAU/USD", name: "Gold Spot (USD)", type: "gold_spot", unit: "troy_ounce", image: "https://cdn-icons-png.flaticon.com/512/1277/1277510.png", basePrice: 2350, volatility: 0.008 },
+  { id: "gold-mini", symbol: "GCM", name: "Gold Mini Futures", type: "gold_futures", unit: "troy_ounce", image: "https://cdn-icons-png.flaticon.com/512/1277/1277510.png", basePrice: 2380, volatility: 0.012 },
+  { id: "gold-1g", symbol: "AU1G", name: "Gold 1 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://cdn-icons-png.flaticon.com/512/1277/1277510.png", basePrice: 1160000, volatility: 0.008 },
+  { id: "gold-5g", symbol: "AU5G", name: "Gold 5 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://cdn-icons-png.flaticon.com/512/1277/1277510.png", basePrice: 5750000, volatility: 0.008 },
+  { id: "gold-10g", symbol: "AU10G", name: "Gold 10 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://cdn-icons-png.flaticon.com/512/1277/1277510.png", basePrice: 11450000, volatility: 0.008 },
+  { id: "gold-25g", symbol: "AU25G", name: "Gold 25 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://cdn-icons-png.flaticon.com/512/1277/1277510.png", basePrice: 28600000, volatility: 0.008 },
+  { id: "gold-50g", symbol: "AU50G", name: "Gold 50 Gram (IDR)", type: "gold_spot", unit: "gram", image: "https://cdn-icons-png.flaticon.com/512/1277/1277510.png", basePrice: 57000000, volatility: 0.008 },
 ];
 
 async function fetchFromCoinGecko(endpoint: string) {
@@ -343,6 +417,7 @@ async function seedFundData() {
       name: seed.name,
       category: seed.category,
       manager: seed.manager,
+      image: seed.image,
       nav: seed.nav.toString(),
       change_1d: seed.change_1d.toString(),
       change_1w: seed.change_1w.toString(),
@@ -410,12 +485,29 @@ async function updateMutualFundData() {
           if (result && result.meta) {
             const currentNav = result.meta.previousClose || seed.nav;
             await storage.upsertMutualFund({
+               id: seed.id,
+               symbol: seed.symbol,
+               name: seed.name,
+               category: seed.category,
+               manager: seed.manager,
+               image: seed.image,
+               nav: currentNav.toString(),
+              change_1d: seed.change_1d.toString(),
+              change_1w: seed.change_1w.toString(),
+              change_1m: seed.change_1m.toString(),
+              change_1y: seed.change_1y.toString(),
+              aum: seed.aum.toString(),
+              risk_level: seed.risk_level,
+            });
+          } else {
+            await storage.upsertMutualFund({
               id: seed.id,
               symbol: seed.symbol,
               name: seed.name,
               category: seed.category,
               manager: seed.manager,
-              nav: currentNav.toString(),
+              image: seed.image,
+              nav: seed.nav.toString(),
               change_1d: seed.change_1d.toString(),
               change_1w: seed.change_1w.toString(),
               change_1m: seed.change_1m.toString(),
@@ -424,9 +516,40 @@ async function updateMutualFundData() {
               risk_level: seed.risk_level,
             });
           }
+        } else {
+          await storage.upsertMutualFund({
+            id: seed.id,
+            symbol: seed.symbol,
+            name: seed.name,
+            category: seed.category,
+            manager: seed.manager,
+            image: seed.image,
+            nav: seed.nav.toString(),
+            change_1d: seed.change_1d.toString(),
+            change_1w: seed.change_1w.toString(),
+            change_1m: seed.change_1m.toString(),
+            change_1y: seed.change_1y.toString(),
+            aum: seed.aum.toString(),
+            risk_level: seed.risk_level,
+          });
         }
       } catch (error) {
         console.error(`Yahoo Finance fetch failed for ${seed.symbol}, using seed:`, error);
+        await storage.upsertMutualFund({
+          id: seed.id,
+          symbol: seed.symbol,
+          name: seed.name,
+          category: seed.category,
+          manager: seed.manager,
+          image: seed.image,
+          nav: seed.nav.toString(),
+          change_1d: seed.change_1d.toString(),
+          change_1w: seed.change_1w.toString(),
+          change_1m: seed.change_1m.toString(),
+          change_1y: seed.change_1y.toString(),
+          aum: seed.aum.toString(),
+          risk_level: seed.risk_level,
+        });
       }
     }
 
@@ -480,6 +603,7 @@ async function seedStockData() {
       exchange: seed.exchange,
       sector: seed.sector,
       industry: seed.industry,
+      image: seed.image,
       current_price: seed.basePrice.toString(),
       change_1d: (Math.random() * 4 - 2).toFixed(2),
       change_1w: (Math.random() * 8 - 4).toFixed(2),
@@ -530,6 +654,7 @@ async function seedGoldData() {
       symbol: seed.symbol,
       name: seed.name,
       type: seed.type,
+      image: seed.image,
       current_price: seed.basePrice.toString(),
       change_1d: (Math.random() * 2 - 1).toFixed(2),
       change_1w: (Math.random() * 4 - 2).toFixed(2),
@@ -585,10 +710,11 @@ async function updateStockData() {
             await storage.upsertStock({
               id: seed.id,
               symbol: seed.symbol,
-              name: seed.name,
+              name: result.meta.name || seed.name,
               exchange: seed.exchange,
               sector: seed.sector,
               industry: seed.industry,
+              image: result.meta.logo || seed.image,
               current_price: currentPrice.toString(),
               change_1d: seed.change_1d.toString(),
               change_1w: seed.change_1w.toString(),
@@ -694,6 +820,7 @@ async function updateGoldData() {
               symbol: seed.symbol,
               name: seed.name,
               type: seed.type,
+              image: seed.image,
               current_price: currentPrice.toFixed(2),
               change_1d: priceChange1d.toFixed(2),
               change_1w: (Math.random() * 4 - 2).toFixed(2),
@@ -868,6 +995,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     broadcast({ type: 'currency_update', data: rates });
   }
 
+  async function updateAndBroadcastIHSG() {
+    const result = await updateIHSGData();
+    const ihsg = await storage.getStock("ihsg");
+    if (ihsg) {
+      broadcast({ type: 'stock_update', data: [{ ...ihsg, isIHSG: true }] });
+    }
+  }
+
   // Initial data fetch
   initializeAndUpdate().catch(err => console.error("Initial fetch failed:", err));
 
@@ -883,6 +1018,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log("History re-seeding complete");
   }).catch(err => console.error("History clear failed:", err));
   
+  updateIHSGData().catch(err => console.error("IHSG update failed:", err));
   updateMutualFundData().catch(err => console.error("Mutual fund update failed:", err));
   seedStockData().catch(err => console.error("Stock seed failed:", err));
   seedGoldData().catch(err => console.error("Gold seed failed:", err));
@@ -895,6 +1031,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setInterval(updateAndBroadcastStocks, 60000);    // Stocks: every 1 minute
   setInterval(updateAndBroadcastGold, 60000);     // Gold: every 1 minute
   setInterval(updateAndBroadcastCurrency, 60000); // Currency: every 1 minute
+  setInterval(updateAndBroadcastIHSG, 60000);     // IHSG: every 1 minute
 
   // Real-time price tick simulation every 5 seconds for smooth live updates
   setInterval(async () => {

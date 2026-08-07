@@ -351,6 +351,29 @@ export default function FundChart({ fundId, rates }: FundChartProps) {
     };
   }, [fundHistory, timeFilter, currency, rates, chartType, fundId]);
 
+  useEffect(() => {
+    if (!chartRef.current || !lastTick) return;
+    const tick = lastTick[fundId];
+    if (!tick) return;
+    const chart = chartRef.current;
+    const newData = chart.data.datasets[0].data as any[];
+    if (chartType === "candlestick") {
+      if (newData.length > 0) {
+        const lastCandle = newData[newData.length - 1] as any;
+        const newPrice = parseFloat(tick.nav || tick.current_price || '0');
+        lastCandle.c = newPrice;
+        lastCandle.h = Math.max(lastCandle.h, newPrice);
+        lastCandle.l = Math.min(lastCandle.l, newPrice);
+        chart.update();
+      }
+    } else {
+      if (newData.length > 0) {
+        newData[newData.length - 1] = parseFloat(tick.nav || tick.current_price || '0');
+        chart.update();
+      }
+    }
+  }, [lastTick, chartType, fundId]);
+
   if (isLoading) {
     return (
       <div className="chart-container" style={{ height: "400px" }}>

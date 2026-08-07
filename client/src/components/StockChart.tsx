@@ -364,12 +364,12 @@ export default function StockChart({ stockId, rates }: StockChartProps) {
         lastCandle.c = newPrice;
         lastCandle.h = Math.max(lastCandle.h, newPrice);
         lastCandle.l = Math.min(lastCandle.l, newPrice);
-        chart.update("quiet");
+        chart.update();
       }
     } else {
       if (newData.length > 0) {
         newData[newData.length - 1] = parseFloat(tick.current_price);
-        chart.update("quiet");
+        chart.update();
       }
     }
   }, [lastTick, chartType, stockId]);
