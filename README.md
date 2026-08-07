@@ -184,3 +184,11 @@ Redis is used for session storage in production. If Redis is unavailable, the ap
 ## License
 
 MIT
+
+## Pair Programming
+
+This project includes co-authored commits for pair programming sessions.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
