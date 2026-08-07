@@ -6,8 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowUpDown, ArrowUp, ArrowDown, Filter, Download, Star, Bell } from "lucide-react";
 import type { Cryptocurrency } from "@shared/schema";
 import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
+import { useCurrency } from "@/hooks/useCurrency";
 import { useToast } from "@/hooks/use-toast";
-import { formatPrice, formatLargeValue } from "@/lib/currencyFormat";
+import { IDR_COINS } from "@/lib/currencyFormat";
 
 interface CryptocurrencyTableProps {
   cryptocurrencies: Cryptocurrency[];
@@ -22,6 +23,7 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
   const itemsPerPage = 10;
 
   const { data: watchlist } = useWatchlist();
+  const { currency, convert, formatCurrency } = useCurrency();
   const addToWatchlist = useAddToWatchlist();
   const removeFromWatchlist = useRemoveFromWatchlist();
   const { toast } = useToast();
@@ -152,14 +154,19 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
           </thead>
           <tbody className="divide-y divide-border">
             {paginatedData.map((crypto) => {
-              const priceChange24h = parseFloat(crypto.price_change_percentage_24h || "0");
-              const priceChange7d = parseFloat(crypto.price_change_percentage_7d || "0");
-              const isPositive24h = priceChange24h >= 0;
-              const isPositive7d = priceChange7d >= 0;
-              const price = parseFloat(crypto.current_price || "0");
-              const marketCap = parseFloat(crypto.market_cap || "0");
-              const volume = parseFloat(crypto.total_volume || "0");
-              const isWatched = watchlist?.some(item => item.cryptoId === crypto.id);
+               const priceChange24h = parseFloat(crypto.price_change_percentage_24h || "0");
+               const priceChange7d = parseFloat(crypto.price_change_percentage_7d || "0");
+               const isPositive24h = priceChange24h >= 0;
+               const isPositive7d = priceChange7d >= 0;
+               const price = parseFloat(crypto.current_price || "0");
+               const marketCap = parseFloat(crypto.market_cap || "0");
+               const volume = parseFloat(crypto.total_volume || "0");
+               const isWatched = watchlist?.some(item => item.cryptoId === crypto.id);
+
+               const sourceCurrency = IDR_COINS.has(crypto.id) ? "IDR" : "USD" as any;
+               const convertedPrice = convert(price, sourceCurrency, currency as any);
+               const convertedMarketCap = convert(marketCap, sourceCurrency, currency as any);
+               const convertedVolume = convert(volume, sourceCurrency, currency as any);
 
               return (
                 <tr key={crypto.id} className="hover:bg-muted/50 transition-colors" data-testid={`row-crypto-${crypto.id}`}>
@@ -185,9 +192,9 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="font-semibold" data-testid={`text-price-${crypto.id}`}>
-                      {formatPrice(crypto.current_price, crypto.id)}
+                      {formatCurrency(convertedPrice, currency as any)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -206,11 +213,11 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm" data-testid={`text-market-cap-${crypto.id}`}>
-                    {formatLargeValue(marketCap, crypto.id)}
+                   <td className="px-6 py-4 whitespace-nowrap text-sm" data-testid={`text-market-cap-${crypto.id}`}>
+                    {formatCurrency(convertedMarketCap, currency as any)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm" data-testid={`text-volume-${crypto.id}`}>
-                    {formatLargeValue(volume, crypto.id)}
+                    {formatCurrency(convertedVolume, currency as any)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">

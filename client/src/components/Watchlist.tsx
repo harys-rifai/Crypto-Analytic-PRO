@@ -3,12 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, X } from "lucide-react";
 import { useWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
+import { useCurrency } from "@/hooks/useCurrency";
+import { IDR_COINS } from "@/lib/currencyFormat";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Watchlist() {
   const { data: watchlist, isLoading } = useWatchlist();
   const removeFromWatchlist = useRemoveFromWatchlist();
   const { toast } = useToast();
+  const { currency, convert, formatCurrency } = useCurrency();
 
   const handleRemoveFromWatchlist = async (cryptoId: string, cryptoName: string) => {
     try {
@@ -105,7 +108,7 @@ export default function Watchlist() {
                   </div>
                   <div className="text-right">
                     <div className="font-semibold text-sm" data-testid={`watchlist-price-${item.crypto.id}`}>
-                      ${price > 1 ? price.toLocaleString(undefined, { maximumFractionDigits: 2 }) : price.toFixed(6)}
+                      {formatCurrency(convert(price, IDR_COINS.has(item.crypto.id) ? "IDR" : "USD", currency as any), currency as any)}
                     </div>
                     <Button
                       variant="ghost"

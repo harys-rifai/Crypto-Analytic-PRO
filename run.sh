@@ -4,16 +4,22 @@ set -e
 # CryptoAnalytic - Run Script
 # Starts the full-stack cryptocurrency tracker application
 # (Express API server + Vite React dev client on a single port)
-#
-# Database: The app uses in-memory storage at runtime (MemStorage),
-#   so no database server is needed to run the app. The DATABASE_URL
-#   is only used by drizzle-kit for schema tooling. If you want
-#   PostgreSQL persistence, set DATABASE_URL and start a Postgres
-#   instance (e.g. the local one on port 5008 referenced in .env).
 
 # Determine script directory (works on Linux/macOS/MinGW/Git Bash)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
+
+# Kill existing web app processes on the target port
+PORT="${PORT:-5000}"
+echo "Checking for existing processes on port ${PORT}..."
+EXISTING_PID=$(netstat -ano 2>/dev/null | grep ":${PORT} " | grep LISTENING | awk '{print $NF}' | head -n1 || true)
+if [ -n "$EXISTING_PID" ]; then
+  echo "Killing existing process (PID: ${EXISTING_PID}) on port ${PORT}..."
+  taskkill //F //PID "$EXISTING_PID" 2>/dev/null || kill -9 "$EXISTING_PID" 2>/dev/null || true
+  sleep 2
+else
+  echo "No existing process found on port ${PORT}."
+fi
 
 # Check for .env file, create from example if missing
 if [ ! -f .env ]; then
@@ -31,7 +37,7 @@ if [ ! -d node_modules ]; then
   npm install
 fi
 
-# Ensure DATABASE_URL is set (fall back to local PostgreSQL)
+# Ensure DATABASE_URL is set
 if ! grep -q "DATABASE_URL=" .env 2>/dev/null; then
   echo "DATABASE_URL not found in .env; using local sqlite-like default."
 fi
@@ -41,19 +47,31 @@ if ! grep -q "SESSION_SECRET=" .env 2>/dev/null; then
   echo "SESSION_SECRET=dev-secret-$(date +%s)" >> .env
 fi
 
-# Push database schema (creates tables; safe to run if DB already migrated)
-# Note: This connects to the PostgreSQL at DATABASE_URL. If no DB is
-# available, it will be skipped and the app will run using in-memory storage.
+# Check database connection
+echo "Checking database connection..."
+DATABASE_URL=$(grep "^DATABASE_URL=" .env | head -n1 | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+if [ -n "$DATABASE_URL" ]; then
+  echo "DATABASE_URL detected. Attempting to verify connection..."
+  node -e "
+    const { Client } = require('pg');
+    const url = process.env.DATABASE_URL || '$DATABASE_URL';
+    const client = new Client({ connectionString: url, ssl: url.includes('neon') ? { rejectUnauthorized: false } : false });
+    client.connect()
+      .then(() => { console.log('Database connection successful'); client.end(); process.exit(0); })
+      .catch((err) => { console.error('Database connection failed:', err.message); process.exit(1); });
+  " 2>/dev/null || echo "Database connection check skipped or failed. App will use in-memory storage."
+else
+  echo "No DATABASE_URL configured. App will run with in-memory storage."
+fi
+
+# Push database schema
 echo "Pushing database schema..."
-npm run db:push 2>&1 || echo "db:push skipped (no database configured or unreachable)"
+npm run db:push 2>&1 || echo "db:push skipped/failed; keeping existing data"
 
 # CoinGecko API uses HTTPS; some environments fail TLS verification.
-# Set NODE_TLS_REJECT_UNAUTHORIZED=0 to work around this in development.
 export NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED:-0}
 
 # Start the development server
-# This runs the Express server (server/index.ts) which also serves
-# the Vite dev server for the React client in development mode.
 echo "Starting CryptoAnalytic development server..."
-echo "Access the app at http://localhost:${PORT:-5000}"
+echo "Access the app at http://localhost:${PORT}"
 npm run dev

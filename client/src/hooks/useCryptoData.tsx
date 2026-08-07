@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import type { Cryptocurrency, Watchlist, PriceAlert, PriceHistory } from "@shared/schema";
+import type { Cryptocurrency, Watchlist, PriceAlert, PriceHistory, MutualFund, MutualFundHistory, FundWatchlist, CurrencyRate, Portfolio } from "@shared/schema";
 
 export function useCryptoData(limit?: number) {
   return useQuery<Cryptocurrency[]>({
@@ -114,6 +114,163 @@ export function useDeletePriceAlert() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/alerts'] });
+    },
+  });
+}
+
+// ========================================
+// Reksa Dana (Mutual Fund) Hooks
+// ========================================
+
+export function useMutualFunds(limit?: number) {
+  return useQuery<MutualFund[]>({
+    queryKey: ['/api/funds', limit],
+    queryFn: async () => {
+      const url = limit
+        ? `/api/funds?limit=${limit}`
+        : '/api/funds';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch mutual funds');
+      return res.json();
+    },
+    staleTime: 300000,
+  });
+}
+
+export function useFundSearch(query: string, enabled: boolean = true) {
+  return useQuery<MutualFund[]>({
+    queryKey: ['/api/funds/search', query],
+    queryFn: async () => {
+      const res = await fetch(`/api/funds/search?q=${encodeURIComponent(query)}`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Search failed: ${res.statusText}`);
+      }
+      return await res.json();
+    },
+    enabled: enabled && query.length > 2,
+    staleTime: 60000,
+  });
+}
+
+export function useMutualFund(id: string) {
+  return useQuery<MutualFund>({
+    queryKey: [`/api/funds/${id}`],
+    queryFn: async () => {
+      const res = await fetch(`/api/funds/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch mutual fund');
+      return res.json();
+    },
+    staleTime: 300000,
+  });
+}
+
+export function useFundHistory(fundId: string, days: number = 30) {
+  return useQuery<MutualFundHistory[]>({
+    queryKey: [`/api/funds/${fundId}/history?days=${days}`],
+    queryFn: async () => {
+      const res = await fetch(`/api/funds/${fundId}/history?days=${days}`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error('Failed to fetch fund history');
+      return res.json();
+    },
+    staleTime: 60000,
+  });
+}
+
+export function useFundWatchlist() {
+  return useQuery<(FundWatchlist & { fund: MutualFund })[]>({
+    queryKey: ['/api/funds/watchlist'],
+    queryFn: async () => {
+      const res = await fetch('/api/funds/watchlist', {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error('Failed to fetch fund watchlist');
+      return res.json();
+    },
+    staleTime: 60000,
+  });
+}
+
+export function useAddToFundWatchlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { fundId: string }) => {
+      const response = await apiRequest('POST', '/api/funds/watchlist', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/funds/watchlist'] });
+    },
+  });
+}
+
+export function useRemoveFromFundWatchlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (fundId: string) => {
+      const response = await apiRequest('DELETE', `/api/funds/watchlist/${fundId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/funds/watchlist'] });
+    },
+  });
+}
+
+// ========================================
+// Currency Rate Hooks
+// ========================================
+
+export function useCurrencyRates() {
+  return useQuery<CurrencyRate[]>({
+    queryKey: ['/api/currency-rates'],
+    queryFn: async () => {
+      const res = await fetch('/api/currency-rates');
+      if (!res.ok) throw new Error('Failed to fetch currency rates');
+      return res.json();
+    },
+    staleTime: 3600000,
+  });
+}
+
+// ========================================
+// Portfolio Hooks
+// ========================================
+
+export function usePortfolios() {
+  return useQuery<Portfolio[]>({
+    queryKey: ['/api/portfolio'],
+    queryFn: async () => {
+      const res = await fetch('/api/portfolio', {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error('Failed to fetch portfolio');
+      return res.json();
+    },
+    staleTime: 60000,
+  });
+}
+
+export function useAddToPortfolio() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      assetType: string;
+      assetId: string;
+      quantity: string;
+      buyPrice?: string;
+    }) => {
+      const response = await apiRequest('POST', '/api/portfolio', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/portfolio'] });
     },
   });
 }

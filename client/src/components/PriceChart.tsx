@@ -3,6 +3,7 @@ import { Chart, registerables } from "chart.js";
 import { usePriceHistory } from "@/hooks/useCryptoData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 Chart.register(...registerables);
 
@@ -63,7 +64,22 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('24h');
-  const { data: priceHistory, isLoading } = usePriceHistory(cryptoId, TIME_FILTER_HOURS[timeFilter]);
+  const { data: priceHistory, isLoading, refetch } = usePriceHistory(cryptoId, TIME_FILTER_HOURS[timeFilter]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   useEffect(() => {
     if (!canvasRef.current || !priceHistory || priceHistory.length === 0) return;
@@ -258,19 +274,38 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
 
   return (
     <div className="chart-container" data-testid="chart-price-history">
-      <div className="flex flex-wrap gap-2 mb-4">
-        {timeFilters.map((filter) => (
+      <div className="flex flex-wrap gap-2 mb-4 items-center justify-between">
+        <div className="flex flex-wrap gap-2">
+          {timeFilters.map((filter) => (
+            <Button
+              key={filter}
+              variant={timeFilter === filter ? "default" : "outline"}
+              size="sm"
+              onClick={() => setTimeFilter(filter)}
+              className="text-xs"
+              data-testid={`button-time-filter-${filter}`}
+            >
+              {filter.toUpperCase()}
+            </Button>
+          ))}
+        </div>
+        <div className="flex items-center space-x-2">
+          {priceHistory && priceHistory.length > 0 && (
+            <span className="text-xs text-muted-foreground" data-testid="text-chart-last-update">
+              Last updated: {new Date(priceHistory[priceHistory.length - 1].timestamp!).toLocaleString()}
+            </span>
+          )}
           <Button
-            key={filter}
-            variant={timeFilter === filter ? "default" : "outline"}
+            variant="ghost"
             size="sm"
-            onClick={() => setTimeFilter(filter)}
-            className="text-xs"
-            data-testid={`button-time-filter-${filter}`}
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="text-xs text-muted-foreground hover:text-foreground"
+            data-testid="button-refresh-chart"
           >
-            {filter.toUpperCase()}
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
           </Button>
-        ))}
+        </div>
       </div>
       <div style={{ height: '400px', position: 'relative' }}>
         <canvas ref={canvasRef} />

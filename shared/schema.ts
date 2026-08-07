@@ -1,7 +1,21 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, timestamp, boolean, jsonb, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+export const AssetType = z.enum(["crypto", "reksadana", "stock", "gold"]);
+export type AssetType = z.infer<typeof AssetType>;
+
+export interface Asset {
+  id: string;
+  name: string;
+  symbol: string;
+  type: AssetType;
+  price: number;
+  currency: string;
+  change24h: number;
+  updatedAt: Date;
+}
 
 export const cryptocurrencies = pgTable("cryptocurrencies", {
   id: varchar("id").primaryKey(),
@@ -80,6 +94,38 @@ export const mutualFunds = pgTable("mutual_funds", {
   last_updated: timestamp("last_updated").defaultNow(),
 });
 
+export const mutualFundHistory = pgTable("mutual_fund_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fundId: text("fund_id").notNull().references(() => mutualFunds.id),
+  date: timestamp("date").notNull(),
+  nav: decimal("nav", { precision: 20, scale: 4 }).notNull(),
+});
+
+export const fundWatchlists = pgTable("fund_watchlists", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  fundId: text("fund_id").notNull().references(() => mutualFunds.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const portfolios = pgTable("portfolios", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  assetType: text("asset_type").notNull(),
+  assetId: text("asset_id").notNull(),
+  quantity: decimal("quantity").notNull(),
+  buyPrice: decimal("buy_price"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const currencyRates = pgTable("currency_rates", {
+  id: text("id").primaryKey(),
+  fromCurrency: text("from_currency").notNull(),
+  toCurrency: text("to_currency").notNull(),
+  rate: decimal("rate", { precision: 20, scale: 6 }).notNull(),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+});
+
 // Schemas
 export const insertCryptocurrencySchema = createInsertSchema(cryptocurrencies);
 export const insertWatchlistSchema = createInsertSchema(watchlists).omit({ id: true, createdAt: true });
@@ -87,6 +133,10 @@ export const insertPriceAlertSchema = createInsertSchema(priceAlerts).omit({ id:
 export const insertPriceHistorySchema = createInsertSchema(priceHistory).omit({ id: true, timestamp: true });
 export const insertUserSchema = createInsertSchema(users).pick({ username: true, password: true });
 export const insertMutualFundSchema = createInsertSchema(mutualFunds);
+export const insertMutualFundHistorySchema = createInsertSchema(mutualFundHistory).omit({ id: true });
+export const insertFundWatchlistSchema = createInsertSchema(fundWatchlists).omit({ id: true, createdAt: true });
+export const insertPortfolioSchema = createInsertSchema(portfolios).omit({ id: true, createdAt: true });
+export const insertCurrencyRateSchema = createInsertSchema(currencyRates).omit({ lastUpdated: true });
 
 export type Cryptocurrency = typeof cryptocurrencies.$inferSelect;
 export type InsertCryptocurrency = z.infer<typeof insertCryptocurrencySchema>;
@@ -100,3 +150,11 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type MutualFund = typeof mutualFunds.$inferSelect;
 export type InsertMutualFund = z.infer<typeof insertMutualFundSchema>;
+export type MutualFundHistory = typeof mutualFundHistory.$inferSelect;
+export type InsertMutualFundHistory = z.infer<typeof insertMutualFundHistorySchema>;
+export type FundWatchlist = typeof fundWatchlists.$inferSelect;
+export type InsertFundWatchlist = z.infer<typeof insertFundWatchlistSchema>;
+export type Portfolio = typeof portfolios.$inferSelect;
+export type InsertPortfolio = z.infer<typeof insertPortfolioSchema>;
+export type CurrencyRate = typeof currencyRates.$inferSelect;
+export type InsertCurrencyRate = z.infer<typeof insertCurrencyRateSchema>;

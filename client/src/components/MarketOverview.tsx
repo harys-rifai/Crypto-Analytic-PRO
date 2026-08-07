@@ -5,7 +5,8 @@ import { TrendingUp, TrendingDown, Star, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Cryptocurrency } from "@shared/schema";
 import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
-import { formatPrice } from "@/lib/currencyFormat";
+import { useCurrency } from "@/hooks/useCurrency";
+import { IDR_COINS } from "@/lib/currencyFormat";
 import CreateAlertDialog from "./CreateAlertDialog";
 
 interface MarketOverviewProps {
@@ -20,6 +21,7 @@ export default function MarketOverview({ cryptocurrencies: initialCryptos }: Mar
     const { data: watchlist } = useWatchlist();
     const addToWatchlist = useAddToWatchlist();
     const removeFromWatchlist = useRemoveFromWatchlist();
+    const { currency, convert, formatCurrency } = useCurrency();
 
     const toggleWatchlist = (e: React.MouseEvent, cryptoId: string) => {
         e.preventDefault();
@@ -107,8 +109,8 @@ export default function MarketOverview({ cryptocurrencies: initialCryptos }: Mar
                                     </Button>
                                 </div>
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-2xl font-bold">{formatPrice(crypto.current_price, crypto.id)}</p>
+                             <div className="space-y-1">
+                                <p className="text-2xl font-bold">{formatCurrency(convert(parseFloat(crypto.current_price || "0"), IDR_COINS.has(crypto.id) ? "IDR" : "USD", currency as any), currency as any)}</p>
                                 <div className={`flex items-center space-x-1 text-sm ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                                     {isPositive ? (
                                         <TrendingUp className="h-4 w-4" />
