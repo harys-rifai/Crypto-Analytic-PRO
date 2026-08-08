@@ -55,9 +55,6 @@ A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, 
 |:---:|:---:|:---:|
 | ![Dashboard Light](img/dasboard.png) | ![Dashboard Dark](img/dasboard-dark.png) | ![Login](img/login.png) |
 
-| Recent Screenshot |
-|:---:|
-| ![Screenshot](img/Screenshot%202026-08-07%20222307.png) |
 
 ## Prerequisites
 

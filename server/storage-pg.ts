@@ -2,8 +2,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pkg from "pg";
 const { Pool } = pkg;
 import { 
-  type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type User, type InsertUser, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate,
-  users, cryptocurrencies, watchlists, priceAlerts, priceHistory, mutualFunds, mutualFundHistory, fundWatchlists, stocks, stockHistory, stockWatchlists, gold, goldHistory, goldWatchlists, portfolios, currencyRates
+  type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type User, type InsertUser, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate, type UserSession, type InsertUserSession,
+  users, cryptocurrencies, watchlists, priceAlerts, priceHistory, mutualFunds, mutualFundHistory, fundWatchlists, stocks, stockHistory, stockWatchlists, gold, goldHistory, goldWatchlists, portfolios, currencyRates, userSessions
 } from "@shared/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -48,6 +48,34 @@ export class DbStorage implements IStorage {
     const id = randomUUID();
     const [user] = await db.insert(users).values({ ...insertUser, id }).returning();
     return user;
+  }
+
+  async updateUserActivity(userId: string): Promise<User | undefined> {
+    const [user] = await db.update(users).set({ last_activity: new Date() }).where(eq(users.id, userId)).returning();
+    return user;
+  }
+
+  async updateUserLogin(userId: string): Promise<User | undefined> {
+    const [user] = await db.update(users).set({ 
+      last_login: new Date(), 
+      last_activity: new Date(),
+      login_count: sql`${users.login_count} + 1`
+    }).where(eq(users.id, userId)).returning();
+    return user;
+  }
+
+  async getUserSessions(userId: string): Promise<UserSession[]> {
+    return await db.select().from(userSessions).where(eq(userSessions.userId, userId)).orderBy(desc(userSessions.session_start));
+  }
+
+  async createUserSession(insertSession: InsertUserSession): Promise<UserSession> {
+    const [session] = await db.insert(userSessions).values({ ...insertSession, session_start: new Date(), is_active: true }).returning();
+    return session;
+  }
+
+  async endUserSession(sessionId: string): Promise<UserSession | undefined> {
+    const [session] = await db.update(userSessions).set({ session_end: new Date(), is_active: false }).where(eq(userSessions.id, sessionId)).returning();
+    return session;
   }
 
   async getCryptocurrencies(limit = 100): Promise<Cryptocurrency[]> {

@@ -38,6 +38,53 @@ export class MemStorage implements IStorage {
     return user;
   }
 
+  async updateUserActivity(userId: string): Promise<User | undefined> {
+    const user = this.users.get(userId);
+    if (!user) return undefined;
+    const updated = { ...user, last_activity: new Date() };
+    this.users.set(userId, updated);
+    return updated;
+  }
+
+  async updateUserLogin(userId: string): Promise<User | undefined> {
+    const user = this.users.get(userId);
+    if (!user) return undefined;
+    const updated = { 
+      ...user, 
+      last_login: new Date(), 
+      last_activity: new Date(),
+      login_count: (user.login_count || 0) + 1 
+    };
+    this.users.set(userId, updated);
+    return updated;
+  }
+
+  async getUserSessions(userId: string): Promise<UserSession[]> {
+    return Array.from(this.userSessions.values())
+      .filter(session => session.userId === userId)
+      .sort((a, b) => (b.session_start?.getTime() || 0) - (a.session_start?.getTime() || 0));
+  }
+
+  async createUserSession(insertSession: InsertUserSession): Promise<UserSession> {
+    const id = randomUUID();
+    const session: UserSession = { 
+      ...insertSession, 
+      id, 
+      session_start: new Date(),
+      is_active: true 
+    };
+    this.userSessions.set(id, session);
+    return session;
+  }
+
+  async endUserSession(sessionId: string): Promise<UserSession | undefined> {
+    const session = this.userSessions.get(sessionId);
+    if (!session) return undefined;
+    const updated = { ...session, session_end: new Date(), is_active: false };
+    this.userSessions.set(sessionId, updated);
+    return updated;
+  }
+
   async getCryptocurrencies(limit = 100): Promise<Cryptocurrency[]> {
     return Array.from(this.cryptocurrencies.values())
       .sort((a, b) => {
