@@ -1,14 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Chart, registerables } from "chart.js";
-import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
+import { Chart } from "@/lib/chartSetup";
 import { usePriceHistory } from "@/hooks/useCryptoData";
 import { useWebSocketContext } from "@/hooks/useWebSocket";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import "chartjs-adapter-date-fns";
-
-Chart.register(...registerables, CandlestickController, CandlestickElement);
 
 type TimeFilter = '1h' | '3h' | '6h' | '24h' | '3d' | '7d' | '1m' | '3m' | '1y' | 'all';
 
@@ -67,26 +63,15 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('24h');
-  const [chartType, setChartType] = useState<'line' | 'candlestick'>('line');
   const { data: priceHistory, isLoading, refetch } = usePriceHistory(cryptoId, TIME_FILTER_HOURS[timeFilter]);
   const { lastTick } = useWebSocketContext();
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const uniqueCanvasId = `price-chart-${cryptoId}-${timeFilter}`;
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await refetch();
     setIsRefreshing(false);
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch();
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, [refetch]);
 
   useEffect(() => {
     if (!canvasRef.current || !priceHistory || priceHistory.length === 0) return;
@@ -99,181 +84,97 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
       chartRef.current = null;
     }
 
-    if (chartType === 'candlestick' && priceHistory.length > 0) {
-      const candleData = priceHistory.map((point, index) => {
-        const price = parseFloat(point.price);
-        const prevPrice = index > 0 ? parseFloat(priceHistory[index - 1].price) : price;
-        const open = prevPrice;
-        const close = price;
-        const priceHash = Math.abs(price * 1000 + index * 37) % 1000;
-        const offset = (priceHash / 1000) * 0.01;
-        const high = Math.max(open, close) * (1 + offset);
-        const low = Math.min(open, close) * (1 - offset);
-        return {
-          x: new Date(point.timestamp!).getTime(),
-          o: open,
-          h: high,
-          l: low,
-          c: close,
-        };
-      });
+    const labels = priceHistory.map((point) => {
+      const date = new Date(point.timestamp!);
+      return formatTimeLabel(date, timeFilter);
+    });
 
-      chartRef.current = new Chart(ctx, {
-        type: 'candlestick',
-        data: {
-          datasets: [{
-            label: 'Price',
-            data: candleData,
-            borderColor: {
-              up: 'rgb(34, 197, 94)',
-              down: 'rgb(239, 68, 68)',
-              unchanged: 'rgb(161, 161, 170)',
-            } as any,
-            backgroundColor: {
-              up: 'rgba(34, 197, 94, 0.8)',
-              down: 'rgba(239, 68, 68, 0.8)',
-              unchanged: 'rgba(161, 161, 170, 0.8)',
-            } as any,
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              enabled: true,
-              backgroundColor: 'rgba(24, 24, 27, 0.95)',
-              titleColor: '#ffffff',
-              bodyColor: '#ffffff',
-              borderColor: 'rgba(63, 63, 70, 0.8)',
-              borderWidth: 1,
-              padding: 12,
-              callbacks: {
-                label: (context) => {
-                  const point = context.raw as any;
-                  return `O: $${point.o.toFixed(2)} H: $${point.h.toFixed(2)} L: $${point.l.toFixed(2)} C: $${point.c.toFixed(2)}`;
-                },
+    const prices = priceHistory.map((point) => parseFloat(point.price));
+
+    const firstPrice = prices[0];
+    const lastPrice = prices[prices.length - 1];
+    const isPriceUp = lastPrice >= firstPrice;
+
+    const lineColor = isPriceUp ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)';
+    const fillColor = isPriceUp ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+
+    chartRef.current = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Price',
+          data: prices,
+          borderColor: lineColor,
+          backgroundColor: fillColor,
+          tension: 0.4,
+          fill: true,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: lineColor,
+          pointHoverBorderColor: '#ffffff',
+          pointHoverBorderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(24, 24, 27, 0.95)',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            borderColor: 'rgba(63, 63, 70, 0.8)',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: true,
+            callbacks: {
+              title: (context) => {
+                const index = context[0].dataIndex;
+                const timestamp = priceHistory[index].timestamp;
+                if (timestamp) {
+                  const date = new Date(timestamp);
+                  return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                }
+                return '';
+              },
+              label: (context) => {
+                const price = context.parsed.y;
+                return `Price: $${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
               },
             },
           },
-          scales: {
-            x: {
-              type: 'time',
-              time: {
-                unit: timeFilter === '1h' || timeFilter === '3h' ? 'hour' : 'day',
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(63, 63, 70, 0.3)', drawOnChartArea: true },
+            ticks: { color: 'rgba(161, 161, 170, 1)', font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: timeFilter === '1h' || timeFilter === '3h' ? 10 : 8 },
+            border: { color: 'rgba(63, 63, 70, 0.5)' },
+          },
+          y: {
+            position: 'right',
+            beginAtZero: false,
+            grid: { color: 'rgba(63, 63, 70, 0.3)', drawOnChartArea: true },
+            ticks: {
+              color: 'rgba(161, 161, 170, 1)',
+              font: { size: 11 },
+              callback: (value) => {
+                const num = Number(value);
+                if (num >= 1000) return '$' + (num / 1000).toFixed(2) + 'K';
+                return '$' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
               },
-              grid: { color: 'rgba(63, 63, 70, 0.3)' },
-              ticks: { color: 'rgba(161, 161, 170, 1)', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
-              border: { color: 'rgba(63, 63, 70, 0.5)' },
             },
-            y: {
-              position: 'right',
-              beginAtZero: false,
-              grid: { color: 'rgba(63, 63, 70, 0.3)' },
-              ticks: {
-                color: 'rgba(161, 161, 170, 1)',
-                callback: (value) => '$' + Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-              },
-              border: { color: 'rgba(63, 63, 70, 0.5)' },
-            },
+            border: { color: 'rgba(63, 63, 70, 0.5)' },
           },
         },
-      });
-    } else {
-      const labels = priceHistory.map((point) => {
-        const date = new Date(point.timestamp!);
-        return formatTimeLabel(date, timeFilter);
-      });
-
-      const prices = priceHistory.map((point) => parseFloat(point.price));
-
-      const firstPrice = prices[0];
-      const lastPrice = prices[prices.length - 1];
-      const isPriceUp = lastPrice >= firstPrice;
-
-      const lineColor = isPriceUp ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)';
-      const fillColor = isPriceUp ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-
-      chartRef.current = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Price',
-            data: prices,
-            borderColor: lineColor,
-            backgroundColor: fillColor,
-            tension: 0.4,
-            fill: true,
-            borderWidth: 2,
-            pointRadius: 0,
-            pointHoverRadius: 6,
-            pointHoverBackgroundColor: lineColor,
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 2,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              enabled: true,
-              mode: 'index',
-              intersect: false,
-              backgroundColor: 'rgba(24, 24, 27, 0.95)',
-              titleColor: '#ffffff',
-              bodyColor: '#ffffff',
-              borderColor: 'rgba(63, 63, 70, 0.8)',
-              borderWidth: 1,
-              padding: 12,
-              displayColors: true,
-              callbacks: {
-                title: (context) => {
-                  const index = context[0].dataIndex;
-                  const timestamp = priceHistory[index].timestamp;
-                  if (timestamp) {
-                    const date = new Date(timestamp);
-                    return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-                  }
-                  return '';
-                },
-                label: (context) => {
-                  const price = context.parsed.y;
-                  return `Price: $${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                },
-                labelColor: () => ({ borderColor: lineColor, backgroundColor: lineColor, borderWidth: 2, borderRadius: 2 }),
-              },
-            },
-          },
-          scales: {
-            x: {
-              grid: { color: 'rgba(63, 63, 70, 0.3)', drawOnChartArea: true },
-              ticks: { color: 'rgba(161, 161, 170, 1)', font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: timeFilter === '1h' || timeFilter === '3h' ? 10 : 8 },
-              border: { color: 'rgba(63, 63, 70, 0.5)' },
-            },
-            y: {
-              position: 'right',
-              beginAtZero: false,
-              grid: { color: 'rgba(63, 63, 70, 0.3)', drawOnChartArea: true },
-              ticks: {
-                color: 'rgba(161, 161, 170, 1)',
-                font: { size: 11 },
-                callback: (value) => {
-                  const num = Number(value);
-                  if (num >= 1000) return '$' + (num / 1000).toFixed(2) + 'K';
-                  return '$' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                },
-              },
-              border: { color: 'rgba(63, 63, 70, 0.5)' },
-            },
-          },
-          interaction: { mode: 'index', intersect: false },
-        },
-      });
-    }
+        interaction: { mode: 'index', intersect: false },
+      },
+    });
 
     return () => {
       if (chartRef.current) {
@@ -281,30 +182,19 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
         chartRef.current = null;
       }
     };
-  }, [priceHistory, timeFilter, chartType, cryptoId]);
+  }, [priceHistory, timeFilter, cryptoId]);
 
   useEffect(() => {
     if (!chartRef.current || !lastTick) return;
     const tick = lastTick[cryptoId];
     if (!tick) return;
     const chart = chartRef.current;
-    const newData = chart.data.datasets[0].data as any[];
-    if (chartType === "candlestick") {
-      if (newData.length > 0) {
-        const lastCandle = newData[newData.length - 1] as any;
-        const newPrice = parseFloat(tick.current_price);
-        lastCandle.c = newPrice;
-        lastCandle.h = Math.max(lastCandle.h, newPrice);
-        lastCandle.l = Math.min(lastCandle.l, newPrice);
-        chart.update();
-      }
-    } else {
-      if (newData.length > 0) {
-        newData[newData.length - 1] = parseFloat(tick.current_price);
-        chart.update();
-      }
+    const newData = chart.data.datasets[0].data as number[];
+    if (newData.length > 0) {
+      newData[newData.length - 1] = parseFloat(tick.current_price);
+      chart.update();
     }
-  }, [lastTick, chartType, cryptoId]);
+  }, [lastTick, cryptoId]);
 
   if (isLoading) {
     return (
@@ -343,15 +233,6 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
               {filter.toUpperCase()}
             </Button>
           ))}
-          <Button
-            variant={chartType === 'candlestick' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setChartType(chartType === 'candlestick' ? 'line' : 'candlestick')}
-            className="text-xs"
-            data-testid="button-toggle-candlestick"
-          >
-            {chartType === 'candlestick' ? 'LINE' : 'CANDLE'}
-          </Button>
         </div>
         <div className="flex items-center space-x-2">
           {priceHistory && priceHistory.length > 0 && (
@@ -372,7 +253,7 @@ export default function PriceChart({ cryptoId }: PriceChartProps) {
         </div>
       </div>
       <div style={{ height: '400px', position: 'relative' }}>
-        <canvas id={uniqueCanvasId} ref={canvasRef} />
+        <canvas ref={canvasRef} />
       </div>
     </div>
   );

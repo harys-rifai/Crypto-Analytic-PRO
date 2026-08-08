@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowUpDown, ArrowUp, ArrowDown, Filter, Download, Star, Bell } from "lucide-react";
+import { AssetImage } from "@/components/ui/asset-image";
 import type { Cryptocurrency } from "@shared/schema";
 import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
 import { useCurrency } from "@/hooks/useCurrency";
@@ -176,13 +177,7 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-full overflow-hidden">
-                        {crypto.image ? (
-                          <img src={crypto.image} alt={crypto.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-gray-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                            {crypto.symbol.substring(0, 2).toUpperCase()}
-                          </div>
-                        )}
+                        <AssetImage src={crypto.image} alt={crypto.name} symbol={crypto.symbol} type="crypto" className="w-full h-full object-cover" />
                       </div>
                       <div>
                         <div className="font-medium" data-testid={`text-name-${crypto.id}`}>{crypto.name}</div>

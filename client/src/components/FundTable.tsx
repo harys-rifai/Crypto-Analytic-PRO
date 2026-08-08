@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowUpDown, ArrowUp, ArrowDown, Filter, Download, Star, Bell } from "lucide-react";
+import { AssetImage } from "@/components/ui/asset-image";
 import type { MutualFund } from "@shared/schema";
 import {
   useFundWatchlist,
@@ -207,13 +208,7 @@ export default function FundTable({ funds, isLoading, searchFilter }: FundTableP
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
-                      {fund.image ? (
-                        <img src={fund.image} alt={fund.name} className="w-8 h-8 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold">
-                          {fund.symbol || "?"}
-                        </div>
-                      )}
+                        <AssetImage src={fund.image} alt={fund.name} symbol={fund.symbol} type="fund" className="w-8 h-8 rounded-full object-cover" />
                       <div>
                         <div className="font-medium" data-testid={`text-fund-name-${fund.id}`}>
                           {fund.name}

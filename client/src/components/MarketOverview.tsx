@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Star, Bell } from "lucide-react";
+import { AssetImage } from "@/components/ui/asset-image";
 import { Button } from "@/components/ui/button";
 import type { Cryptocurrency } from "@shared/schema";
 import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
@@ -75,9 +76,7 @@ export default function MarketOverview({ cryptocurrencies: initialCryptos }: Mar
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center space-x-2">
-                                    {crypto.image && (
-                                        <img src={crypto.image} alt={crypto.name} className="w-8 h-8 rounded-full" />
-                                    )}
+                                    <AssetImage src={crypto.image} alt={crypto.name} symbol={crypto.symbol} type="crypto" className="w-8 h-8 rounded-full" />
                                     <div>
                                         <h4 className="font-semibold text-sm">{crypto.name}</h4>
                                         <p className="text-xs text-muted-foreground">{crypto.symbol.toUpperCase()}</p>

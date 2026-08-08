@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, X, TrendingUp, TrendingDown } from "lucide-react";
+import { AssetImage } from "@/components/ui/asset-image";
 import { usePriceAlerts, useDeletePriceAlert } from "@/hooks/useCryptoData";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -150,9 +151,7 @@ export default function PriceAlerts() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        {crypto.image && (
-                          <img src={crypto.image} alt={crypto.name} className="w-6 h-6 rounded-full" />
-                        )}
+                        <AssetImage src={crypto.image} alt={crypto.name} symbol={crypto.symbol} type="crypto" className="w-6 h-6 rounded-full" />
                         <div>
                           <div className="font-medium text-sm" data-testid={`alert-title-${alert.id}`}>
                             {crypto.symbol.toUpperCase()} Alert

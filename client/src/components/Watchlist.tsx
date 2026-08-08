@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, X } from "lucide-react";
+import { AssetImage } from "@/components/ui/asset-image";
 import { useWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
 import { useCurrency } from "@/hooks/useCurrency";
 import { IDR_COINS } from "@/lib/currencyFormat";
@@ -89,13 +90,7 @@ export default function Watchlist() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-6 h-6 rounded-full overflow-hidden">
-                      {item.crypto.image ? (
-                        <img src={item.crypto.image} alt={item.crypto.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gray-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                          {item.crypto.symbol.substring(0, 2).toUpperCase()}
-                        </div>
-                      )}
+                      <AssetImage src={item.crypto.image} alt={item.crypto.name} symbol={item.crypto.symbol} type="crypto" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <div className="font-medium text-sm" data-testid={`watchlist-symbol-${item.crypto.id}`}>

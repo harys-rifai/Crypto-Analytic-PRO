@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, Moon, Sun, Bell, TrendingUp, Star, User, LogOut, ChevronDown, Menu, X, BarChart3, PieChart } from "lucide-react";
+import { AssetImage } from "@/components/ui/asset-image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -153,7 +154,7 @@ export default function Header({ onSearchSelect, activeTab = "crypto", onTabChan
                           data-testid={`result-crypto-${crypto.id}`}
                           onMouseDown={(e) => e.preventDefault()}
                         >
-                          <img src={crypto.image || ""} alt={crypto.name} className="w-8 h-8 rounded-full" />
+                          <AssetImage src={crypto.image} alt={crypto.name} symbol={crypto.symbol} type="crypto" className="w-8 h-8 rounded-full" />
                           <div className="flex-1 min-w-0" onClick={() => {
                             if (onSearchSelect) onSearchSelect(crypto.id);
                             setSearchQuery("");
@@ -387,7 +388,7 @@ export default function Header({ onSearchSelect, activeTab = "crypto", onTabChan
                           }}
                         >
                           <div className="flex items-center gap-2.5">
-                            <img src={crypto.image || ""} alt={crypto.name} className="w-8 h-8 rounded-full" />
+                            <AssetImage src={crypto.image} alt={crypto.name} symbol={crypto.symbol} type="crypto" className="w-8 h-8 rounded-full" />
                             <div>
                               <div className="font-medium text-sm text-zinc-900 dark:text-zinc-100">{crypto.symbol.toUpperCase()}</div>
                               <div className="text-xs text-zinc-500 dark:text-zinc-400">{crypto.name}</div>

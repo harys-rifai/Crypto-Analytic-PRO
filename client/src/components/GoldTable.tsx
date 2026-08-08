@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowUpDown, ArrowUp, ArrowDown, Filter, Download, Star, Bell } from "lucide-react";
+import { AssetImage } from "@/components/ui/asset-image";
 import type { Gold } from "@shared/schema";
 import {
   useGoldWatchlist,
@@ -187,13 +188,7 @@ export default function GoldTable({ gold, isLoading, searchFilter }: GoldTablePr
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
-                      {goldItem.image ? (
-                        <img src={goldItem.image} alt={goldItem.name} className="w-8 h-8 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold">
-                          {goldItem.symbol || "?"}
-                        </div>
-                      )}
+                        <AssetImage src={goldItem.image} alt={goldItem.name} symbol={goldItem.symbol} type="gold" className="w-8 h-8 rounded-full object-cover" />
                       <div>
                         <div className="font-medium" data-testid={`text-gold-name-${goldItem.id}`}>
                           {goldItem.name}

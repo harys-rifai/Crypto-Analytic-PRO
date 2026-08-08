@@ -170,7 +170,7 @@ export default function Dashboard() {
                     </select>
                   </div>
 
-                  <StockChart stockId={selectedStock} rates={rates} />
+                  <StockChart stockId={selectedStock} />
                 </div>
 
                 {/* Detailed Stock Table */}
@@ -211,7 +211,7 @@ export default function Dashboard() {
                     </select>
                   </div>
 
-                  <GoldChart goldId={selectedGold} rates={rates} />
+                  <GoldChart goldId={selectedGold} />
                 </div>
 
                 {/* Detailed Gold Table */}
@@ -252,7 +252,7 @@ export default function Dashboard() {
                     </select>
                   </div>
 
-                  <FundChart fundId={selectedFund} rates={rates} />
+                  <FundChart fundId={selectedFund} />
                 </div>
 
                 {/* Detailed Fund Table */}
