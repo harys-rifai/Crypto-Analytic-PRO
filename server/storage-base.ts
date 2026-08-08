@@ -2,6 +2,12 @@ export interface IStorage {
   getUser(id: string): Promise<any | undefined>;
   getUserByUsername(username: string): Promise<any | undefined>;
   createUser(user: any): Promise<any>;
+  updateUserActivity(userId: string): Promise<any>;
+  updateUserLogin(userId: string): Promise<any>;
+
+  getUserSessions(userId: string): Promise<any[]>;
+  createUserSession(session: any): Promise<any>;
+  endUserSession(sessionId: string): Promise<any>;
 
   getCryptocurrencies(limit?: number): Promise<any[]>;
   getCryptocurrency(id: string): Promise<any | undefined>;
@@ -27,6 +33,7 @@ export interface IStorage {
   searchMutualFunds(query: string): Promise<any[]>;
 
   addFundHistory(historyData: any): Promise<any>;
+  addFundHistoryBatch(historyData: any[]): Promise<any[]>;
   getFundHistory(fundId: string, days: number): Promise<any[]>;
 
   getFundWatchlist(userId: string): Promise<any[]>;
@@ -40,6 +47,7 @@ export interface IStorage {
 
   getStockHistory(stockId: string, hours: number): Promise<any[]>;
   addStockHistory(historyData: any): Promise<any>;
+  addStockHistoryBatch(historyData: any[]): Promise<any[]>;
 
   getStockWatchlist(userId: string): Promise<any[]>;
   addToStockWatchlist(watchlistItem: any): Promise<any>;
@@ -52,6 +60,7 @@ export interface IStorage {
 
   getGoldHistory(goldId: string, hours: number): Promise<any[]>;
   addGoldHistory(historyData: any): Promise<any>;
+  addGoldHistoryBatch(historyData: any[]): Promise<any[]>;
 
   getGoldWatchlist(userId: string): Promise<any[]>;
   addToGoldWatchlist(watchlistItem: any): Promise<any>;

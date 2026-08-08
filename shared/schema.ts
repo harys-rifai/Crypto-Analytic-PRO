@@ -76,6 +76,26 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  last_login: timestamp("last_login"),
+  last_activity: timestamp("last_activity"),
+  login_count: integer("login_count").default(0),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export const userSessions = pgTable("user_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  browser: text("browser"),
+  os: text("os"),
+  device: text("device"),
+  ip_address: text("ip_address"),
+  country: text("country"),
+  city: text("city"),
+  user_agent: text("user_agent"),
+  session_start: timestamp("session_start").defaultNow(),
+  session_end: timestamp("session_end"),
+  is_active: boolean("is_active").default(true),
 });
 
 export const mutualFunds = pgTable("mutual_funds", {
@@ -379,6 +399,7 @@ export const insertWatchlistSchema = createInsertSchema(watchlists).omit({ id: t
 export const insertPriceAlertSchema = createInsertSchema(priceAlerts).omit({ id: true, createdAt: true, triggeredAt: true });
 export const insertPriceHistorySchema = createInsertSchema(priceHistory).omit({ id: true });
 export const insertUserSchema = createInsertSchema(users).pick({ username: true, password: true });
+export const insertUserSessionSchema = createInsertSchema(userSessions).omit({ id: true, session_start: true });
 export const insertMutualFundSchema = createInsertSchema(mutualFunds);
 export const insertMutualFundHistorySchema = createInsertSchema(mutualFundHistory).omit({ id: true });
 export const insertFundWatchlistSchema = createInsertSchema(fundWatchlists).omit({ id: true, createdAt: true });
@@ -401,6 +422,8 @@ export type PriceHistory = typeof priceHistory.$inferSelect;
 export type InsertPriceHistory = z.infer<typeof insertPriceHistorySchema>;
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UserSession = typeof userSessions.$inferSelect;
+export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;
 export type MutualFund = typeof mutualFunds.$inferSelect;
 export type InsertMutualFund = z.infer<typeof insertMutualFundSchema>;
 export type MutualFundHistory = typeof mutualFundHistory.$inferSelect;

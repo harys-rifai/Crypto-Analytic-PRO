@@ -245,6 +245,18 @@ export class DbStorage implements IStorage {
     return history;
   }
 
+  async addFundHistoryBatch(historyData: InsertMutualFundHistory[]): Promise<MutualFundHistory[]> {
+    const values = historyData.map(data => ({ ...data, id: randomUUID(), date: data.date || new Date() }));
+    try {
+      return await db.insert(mutualFundHistory).values(values).returning();
+    } catch (error: any) {
+      if (error?.code === '23503') {
+        return values as any[];
+      }
+      throw error;
+    }
+  }
+
   async getFundHistory(fundId: string, days: number): Promise<MutualFundHistory[]> {
     const cutoffTime = new Date(Date.now() - (days * 24 * 60 * 60 * 1000));
     const result = await db.select().from(mutualFundHistory).where(and(eq(mutualFundHistory.fundId, fundId), sql`${mutualFundHistory.date} >= ${cutoffTime}`)).orderBy(mutualFundHistory.date);
@@ -330,6 +342,19 @@ export class DbStorage implements IStorage {
     }
   }
 
+  async addStockHistoryBatch(historyData: InsertStockHistory[]): Promise<StockHistory[]> {
+    const id = randomUUID();
+    const values = historyData.map(data => ({ ...data, id, timestamp: data.timestamp || new Date() }));
+    try {
+      return await db.insert(stockHistory).values(values).returning();
+    } catch (error: any) {
+      if (error?.code === '23503') {
+        return values as any[];
+      }
+      throw error;
+    }
+  }
+
   async getStockHistory(stockId: string, hours: number): Promise<StockHistory[]> {
     const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
     const result = await db.select().from(stockHistory).where(and(eq(stockHistory.stockId, stockId), sql`${stockHistory.timestamp} >= ${cutoffTime}`)).orderBy(stockHistory.timestamp);
@@ -403,6 +428,18 @@ export class DbStorage implements IStorage {
     } catch (error: any) {
       if (error?.code === '23503') {
         return historyData as any;
+      }
+      throw error;
+    }
+  }
+
+  async addGoldHistoryBatch(historyData: InsertGoldHistory[]): Promise<GoldHistory[]> {
+    const values = historyData.map(data => ({ ...data, id: randomUUID(), timestamp: data.timestamp || new Date() }));
+    try {
+      return await db.insert(goldHistory).values(values).returning();
+    } catch (error: any) {
+      if (error?.code === '23503') {
+        return values as any[];
       }
       throw error;
     }

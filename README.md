@@ -14,7 +14,7 @@ A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, 
 - **Authentication** — Secure login with session-based auth
 - **Real-Time Prices** — Live cryptocurrency, stock, gold, and fund market data with automatic updates
   - Gold prices sourced from goldprice.dev with live XAU/USD spot rates
-- **Historical Charts** — Interactive price/NAV history across multiple time ranges with line and candlestick views
+- **Historical Charts** — Interactive price/NAV history across multiple time ranges with line views
 - **Watchlists** — Save and favorite cryptocurrencies, mutual funds, stocks, and gold
 - **Price Alerts** — Get notified when prices hit your targets
 - **Portfolio Tracking** — Monitor holdings and performance across asset classes
@@ -48,6 +48,16 @@ A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, 
 - CoinGecko API (cryptocurrency)
 - Yahoo Finance / seeded data (Stocks, Reksa Dana)
 - goldprice.dev / ExchangeRate API (Gold, currency conversion)
+
+## Screenshots
+
+| Dashboard (Light) | Dashboard (Dark) | Login |
+|:---:|:---:|:---:|
+| ![Dashboard Light](img/dasboard.png) | ![Dashboard Dark](img/dasboard-dark.png) | ![Login](img/login.png) |
+
+| Recent Screenshot |
+|:---:|
+| ![Screenshot](img/Screenshot%202026-08-07%20222307.png) |
 
 ## Prerequisites
 
@@ -193,3 +203,20 @@ This project includes co-authored commits for pair programming sessions.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Recent Changes
+
+### Graph & Icon Repairs (2026-08-08)
+
+- **Chart.js Setup Deduplication** — Created `client/src/lib/chartSetup.ts` to centralize `Chart.register()` calls, eliminating duplicate registration across `PriceChart`, `StockChart`, `GoldChart`, and `FundChart`.
+- **Tooltip Fix** — Removed invalid `labelColor` callback from all chart components (silent no-op in Chart.js v4 that prevented custom tooltip label colors from rendering).
+- **Duplicate Auto-Refresh Removed** — Eliminated manual `setInterval` refetch in chart components that conflicted with React Query's built-in `refetchInterval: 60000`, which was causing double network requests every 60 seconds.
+- **Candlestick Mode Removed** — Removed simulated/fabricated OHLC candlestick data generation and toggle buttons from all chart components. The previous implementation derived fake high/low values from single price points using a deterministic hash, producing misleading visualizations. Charts now use clean line mode only.
+- **Dead Code Cleanup** — Removed unused `uniqueCanvasId` variables and canvas `id` props that were never referenced by Chart.js. Removed `chartType` state and related UI controls from all chart components.
+- **Unused Dependencies Removed** — Removed `recharts` and `react-icons` from `package.json` and deleted the unused `client/src/components/ui/chart.tsx` (365 lines of dead Recharts wrapper code).
+- **Google Fonts Optimized** — Reduced `client/index.html` font imports from 30+ families to only `Inter`, the only font actually used in the app.
+- **TypeScript Fixes** — Fixed 3 type errors in `server/routes.ts`: cast `cat` to `keyof typeof categoryMap`, cast `comp[0]` to `string` before `.toLowerCase()`, and cast `comp[5]` to `number` before arithmetic.
+- **StockChart Live Update Fixed** — Repaired broken `useEffect` in `StockChart.tsx` that declared `newData` but never used it, missing `chart.update()`, with wrong dependencies.
+- **AssetImage Component** — Created `client/src/components/ui/asset-image.tsx` to provide robust image rendering with automatic fallback icons for stocks, gold, funds, and crypto when external favicon URLs fail. Updated `StockOverview`, `StockTable`, `GoldOverview`, `GoldTable`, `FundOverview`, `FundTable`, `MarketOverview`, `CryptocurrencyTable`, `PriceAlerts`, `Watchlist`, and `Header` to use the new component.
+- **Favicon URL Fix** — Corrected all Google favicon URLs in `server/routes.ts` from `?size=128` to `&sz=128` to match Google's actual API parameter.
+- **Mock Data Timestamp Fix** — Fixed erroneous `* 24` multiplier in stock and gold history API mock data generation that was producing incorrect timestamps relative to the requested time range.
+- **Batch Insert Infrastructure** — Added `addStockHistoryBatch`, `addFundHistoryBatch`, and `addGoldHistoryBatch` methods to all storage implementations (`storage-mem.ts`, `storage-sqlite.ts`, `storage-pg.ts`) to support efficient bulk seeding of 5 years of historical data.

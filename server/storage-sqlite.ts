@@ -534,6 +534,18 @@ export class SqliteStorage implements IStorage {
     return row;
   }
 
+  async addFundHistoryBatch(historyData: InsertMutualFundHistory[]): Promise<MutualFundHistory[]> {
+    const insert = db.prepare("INSERT INTO mutual_fund_history (id, fund_id, date, nav, timestamp) VALUES (?, ?, ?, ?, ?)");
+    const results: MutualFundHistory[] = [];
+    for (const data of historyData) {
+      const id = randomUUID();
+      const timestamp = new Date().toISOString();
+      insert.run(id, data.fundId, data.date, data.nav, timestamp);
+      results.push({ id, fundId: data.fundId, date: data.date, nav: data.nav, timestamp: new Date(timestamp) } as MutualFundHistory);
+    }
+    return results;
+  }
+
   async getFundHistory(fundId: string, days: number): Promise<MutualFundHistory[]> {
     const cutoffTime = new Date(Date.now() - (days * 24 * 60 * 60 * 1000)).toISOString();
     const rows = db.prepare("SELECT * FROM mutual_fund_history WHERE fund_id = ? AND date >= ? ORDER BY date ASC").all(fundId, cutoffTime) as MutualFundHistory[];
@@ -636,6 +648,18 @@ export class SqliteStorage implements IStorage {
     return row;
   }
 
+  async addStockHistoryBatch(historyData: InsertStockHistory[]): Promise<StockHistory[]> {
+    const insert = db.prepare("INSERT INTO stock_history (id, stock_id, price, volume, timestamp) VALUES (?, ?, ?, ?, ?)");
+    const results: StockHistory[] = [];
+    for (const data of historyData) {
+      const id = randomUUID();
+      const timestamp = new Date().toISOString();
+      insert.run(id, data.stockId, data.price, data.volume || null, timestamp);
+      results.push({ id, stockId: data.stockId, price: data.price, volume: data.volume || null, timestamp: new Date(timestamp) } as StockHistory);
+    }
+    return results;
+  }
+
   async getStockHistory(stockId: string, hours: number): Promise<StockHistory[]> {
     const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000)).toISOString();
     const rows = db.prepare("SELECT * FROM stock_history WHERE stock_id = ? AND timestamp >= ? ORDER BY timestamp ASC").all(stockId, cutoffTime) as StockHistory[];
@@ -720,6 +744,18 @@ export class SqliteStorage implements IStorage {
     db.prepare("INSERT INTO gold_history (id, gold_id, price) VALUES (?, ?, ?)").run(id, historyData.goldId, historyData.price);
     const row = db.prepare("SELECT * FROM gold_history WHERE id = ?").get(id) as GoldHistory;
     return row;
+  }
+
+  async addGoldHistoryBatch(historyData: InsertGoldHistory[]): Promise<GoldHistory[]> {
+    const insert = db.prepare("INSERT INTO gold_history (id, gold_id, price, timestamp) VALUES (?, ?, ?, ?)");
+    const results: GoldHistory[] = [];
+    for (const data of historyData) {
+      const id = randomUUID();
+      const timestamp = new Date().toISOString();
+      insert.run(id, data.goldId, data.price, timestamp);
+      results.push({ id, goldId: data.goldId, price: data.price, timestamp: new Date(timestamp) } as GoldHistory);
+    }
+    return results;
   }
 
   async getGoldHistory(goldId: string, hours: number): Promise<GoldHistory[]> {

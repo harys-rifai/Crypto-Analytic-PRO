@@ -1,11 +1,12 @@
 import type { IStorage } from "./storage-base";
 import { 
-  type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type User, type InsertUser, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate
+  type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type User, type InsertUser, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate, type UserSession, type InsertUserSession
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export class MemStorage implements IStorage {
   private users = new Map<string, User>();
+  private userSessions = new Map<string, UserSession>();
   private cryptocurrencies = new Map<string, Cryptocurrency>();
   private watchlists = new Map<string, Watchlist>();
   private priceAlerts = new Map<string, PriceAlert>();
@@ -232,6 +233,20 @@ export class MemStorage implements IStorage {
     return history;
   }
 
+  async addFundHistoryBatch(historyData: InsertMutualFundHistory[]): Promise<MutualFundHistory[]> {
+    const results: MutualFundHistory[] = [];
+    for (const data of historyData) {
+      const id = randomUUID();
+      const history: MutualFundHistory = {
+        ...data,
+        id,
+      };
+      this.fundHistory.set(id, history);
+      results.push(history);
+    }
+    return results;
+  }
+
   async getFundHistory(fundId: string, days: number): Promise<MutualFundHistory[]> {
     const cutoffTime = new Date(Date.now() - (days * 24 * 60 * 60 * 1000));
     return Array.from(this.fundHistory.values())
@@ -332,6 +347,23 @@ export class MemStorage implements IStorage {
     return history;
   }
 
+  async addStockHistoryBatch(historyData: InsertStockHistory[]): Promise<StockHistory[]> {
+    const results: StockHistory[] = [];
+    for (const data of historyData) {
+      const id = randomUUID();
+      const history: StockHistory = {
+        id,
+        stockId: data.stockId,
+        price: data.price,
+        timestamp: new Date(),
+        volume: data.volume || null,
+      };
+      this.stockHistory.set(id, history);
+      results.push(history);
+    }
+    return results;
+  }
+
   async getStockHistory(stockId: string, hours: number): Promise<StockHistory[]> {
     const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
     return Array.from(this.stockHistory.values())
@@ -411,6 +443,21 @@ export class MemStorage implements IStorage {
     };
     this.goldHistory.set(id, history);
     return history;
+  }
+
+  async addGoldHistoryBatch(historyData: InsertGoldHistory[]): Promise<GoldHistory[]> {
+    const results: GoldHistory[] = [];
+    for (const data of historyData) {
+      const id = randomUUID();
+      const history: GoldHistory = {
+        ...data,
+        id,
+        timestamp: new Date()
+      };
+      this.goldHistory.set(id, history);
+      results.push(history);
+    }
+    return results;
   }
 
   async getGoldHistory(goldId: string, hours: number): Promise<GoldHistory[]> {
