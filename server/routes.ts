@@ -1441,7 +1441,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Downsampling for large datasets (max 2000 points)
       if (history.length > 2000) {
         const step = Math.ceil(history.length / 2000);
-        history = history.filter((_, index) => index % step === 0);
+        const sampled = history.filter((_, index) => index % step === 0);
+        const last = history[history.length - 1];
+        if (sampled[sampled.length - 1] !== last) {
+          sampled.push(last);
+        }
+        history = sampled;
       }
 
       res.json(history);
@@ -1732,7 +1737,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let history = await storage.getFundHistory(id, days);
 
-      if (history.length === 0) {
+      const oldestPoint = history[0];
+      const newestPoint = history[history.length - 1];
+      const timeSpanDays = oldestPoint && newestPoint
+        ? (new Date(newestPoint.date as any).getTime() - new Date(oldestPoint.date as any).getTime()) / (1000 * 60 * 60 * 24)
+        : 0;
+
+      if (history.length === 0 || timeSpanDays < days * 0.9) {
         const fund = await storage.getMutualFund(id);
         if (!fund) {
           return res.status(404).json({ message: "Fund not found" });
@@ -1869,7 +1880,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let history = await storage.getStockHistory(id, hours);
 
-      if (history.length === 0) {
+      const oldestPoint = history[0];
+      const newestPoint = history[history.length - 1];
+      const timeSpanHours = oldestPoint && newestPoint
+        ? (newestPoint.timestamp!.getTime() - oldestPoint.timestamp!.getTime()) / (1000 * 60 * 60)
+        : 0;
+
+      if (history.length === 0 || timeSpanHours < hours * 0.9) {
         const stock = await storage.getStock(id);
         if (!stock) {
           return res.status(404).json({ message: "Stock not found" });
@@ -1995,7 +2012,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let history = await storage.getGoldHistory(id, hours);
 
-      if (history.length === 0) {
+      const oldestPoint = history[0];
+      const newestPoint = history[history.length - 1];
+      const timeSpanHours = oldestPoint && newestPoint
+        ? (newestPoint.timestamp!.getTime() - oldestPoint.timestamp!.getTime()) / (1000 * 60 * 60)
+        : 0;
+
+      if (history.length === 0 || timeSpanHours < hours * 0.9) {
         const goldItem = await storage.getGold(id);
         if (!goldItem) {
           return res.status(404).json({ message: "Gold not found" });
