@@ -842,10 +842,75 @@ async function updateStockData() {
               eps: seed.eps?.toString() || (currentPrice / 20).toString(),
               dividend_yield: seed.dividend_yield?.toString() || (Math.random() * 5).toString(),
             });
+          } else {
+            await storage.upsertStock({
+              id: seed.id,
+              symbol: seed.symbol,
+              name: seed.name,
+              exchange: seed.exchange,
+              sector: seed.sector,
+              industry: seed.industry,
+              image: seed.image,
+              current_price: seed.basePrice.toString(),
+              change_1d: (Math.random() * 4 - 2).toFixed(2),
+              change_1w: (Math.random() * 8 - 4).toFixed(2),
+              change_1m: (Math.random() * 15 - 7.5).toFixed(2),
+              change_1y: (Math.random() * 40 - 20).toFixed(2),
+              market_cap: (seed.basePrice * 1000000000).toString(),
+              volume: (Math.random() * 1000000000).toString(),
+              high_24h: (seed.basePrice * 1.02).toString(),
+              low_24h: (seed.basePrice * 0.98).toString(),
+              pe_ratio: seed.pe_ratio?.toString() || (Math.random() * 30 + 5).toString(),
+              eps: seed.eps?.toString() || (seed.basePrice / 20).toString(),
+              dividend_yield: seed.dividend_yield?.toString() || (Math.random() * 5).toFixed(2),
+            });
           }
+        } else {
+          await storage.upsertStock({
+            id: seed.id,
+            symbol: seed.symbol,
+            name: seed.name,
+            exchange: seed.exchange,
+            sector: seed.sector,
+            industry: seed.industry,
+            image: seed.image,
+            current_price: seed.basePrice.toString(),
+            change_1d: (Math.random() * 4 - 2).toFixed(2),
+            change_1w: (Math.random() * 8 - 4).toFixed(2),
+            change_1m: (Math.random() * 15 - 7.5).toFixed(2),
+            change_1y: (Math.random() * 40 - 20).toFixed(2),
+            market_cap: (seed.basePrice * 1000000000).toString(),
+            volume: (Math.random() * 1000000000).toString(),
+            high_24h: (seed.basePrice * 1.02).toString(),
+            low_24h: (seed.basePrice * 0.98).toString(),
+            pe_ratio: seed.pe_ratio?.toString() || (Math.random() * 30 + 5).toString(),
+            eps: seed.eps?.toString() || (seed.basePrice / 20).toString(),
+            dividend_yield: seed.dividend_yield?.toString() || (Math.random() * 5).toFixed(2),
+          });
         }
       } catch (error) {
         console.error(`Yahoo Finance fetch failed for ${seed.symbol}, using seed:`, error);
+        await storage.upsertStock({
+          id: seed.id,
+          symbol: seed.symbol,
+          name: seed.name,
+          exchange: seed.exchange,
+          sector: seed.sector,
+          industry: seed.industry,
+          image: seed.image,
+          current_price: seed.basePrice.toString(),
+          change_1d: (Math.random() * 4 - 2).toFixed(2),
+          change_1w: (Math.random() * 8 - 4).toFixed(2),
+          change_1m: (Math.random() * 15 - 7.5).toFixed(2),
+          change_1y: (Math.random() * 40 - 20).toFixed(2),
+          market_cap: (seed.basePrice * 1000000000).toString(),
+          volume: (Math.random() * 1000000000).toString(),
+          high_24h: (seed.basePrice * 1.02).toString(),
+          low_24h: (seed.basePrice * 0.98).toString(),
+          pe_ratio: seed.pe_ratio?.toString() || (Math.random() * 30 + 5).toString(),
+          eps: seed.eps?.toString() || (seed.basePrice / 20).toString(),
+          dividend_yield: seed.dividend_yield?.toString() || (Math.random() * 5).toFixed(2),
+        });
       }
     }
 
