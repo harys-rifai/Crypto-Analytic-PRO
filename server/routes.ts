@@ -187,6 +187,31 @@ const SEED_CURRENCY_RATES = [
   { id: "SGD_IDR", from: "SGD", to: "IDR",  rate: 12391 },
 ];
 
+function parseBrowser(userAgent: string): string {
+  if (userAgent.includes("Edg/")) return "Edge";
+  if (userAgent.includes("Chrome/") && !userAgent.includes("Edg/")) return "Chrome";
+  if (userAgent.includes("Firefox/")) return "Firefox";
+  if (userAgent.includes("Safari/") && !userAgent.includes("Chrome/")) return "Safari";
+  if (userAgent.includes("MSIE") || userAgent.includes("Trident/")) return "IE";
+  return "Other";
+}
+
+function parseOS(userAgent: string): string {
+  if (userAgent.includes("Windows")) return "Windows";
+  if (userAgent.includes("Mac OS X")) return "macOS";
+  if (userAgent.includes("Linux") && !userAgent.includes("Android")) return "Linux";
+  if (userAgent.includes("Android")) return "Android";
+  if (userAgent.includes("iPhone") || userAgent.includes("iPad")) return "iOS";
+  return "Other";
+}
+
+function parseDevice(userAgent: string): string {
+  if (userAgent.includes("Mobile") || userAgent.includes("Android")) return "Mobile";
+  if (userAgent.includes("Tablet") || userAgent.includes("iPad")) return "Tablet";
+  if (userAgent.includes("Windows") || userAgent.includes("Mac") || userAgent.includes("Linux")) return "Desktop";
+  return "Other";
+}
+
 // Seed data for Indonesian stocks
 const SEED_STOCKS = [
   { id: "bbca", symbol: "BBCA", name: "Bank Central Asia Tbk", exchange: "IDX", sector: "Financials", industry: "Banks", image: "https://www.google.com/s2/favicons?domain=bankbca.com&sz=128", domain: "bankbca.com", basePrice: 8750, volatility: 0.02, change_1d: 1.2, change_1w: 2.5, change_1m: 5.1, change_1y: 15.3, pe_ratio: 18.5, eps: 472, dividend_yield: 2.1 },
@@ -1470,11 +1495,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(401).json({ message: info?.message || "Invalid username or password" });
       }
-      req.login(user, (err) => {
+      req.login(user, async (err) => {
         if (err) {
           return res.status(500).json({ message: "Login failed" });
         }
-        return res.json({ id: user.id, username: user.username });
+        try {
+          await storage.updateUserLogin(user.id);
+          const userAgent = req.headers["user-agent"] as string || "";
+          const session = await storage.createUserSession({
+            userId: user.id,
+            browser: parseBrowser(userAgent),
+            os: parseOS(userAgent),
+            device: parseDevice(userAgent),
+            ipAddress: req.ip || req.socket.remoteAddress || null,
+            userAgent,
+          });
+          return res.json({ id: user.id, username: user.username, sessionId: session.id });
+        } catch (dbError) {
+          console.error("Failed to record login session:", dbError);
+          return res.json({ id: user.id, username: user.username });
+        }
       });
     })(req, res, next);
   });
@@ -1494,6 +1534,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ id: user.id, username: user.username });
     } else {
       res.status(401).json({ message: "Unauthorized" });
+    }
+  });
+
+  app.get("/api/user/sessions", requireAuth, async (req: any, res) => {
+    try {
+      const sessions = await storage.getUserSessions(req.user.id);
+      res.json(sessions);
+    } catch (error) {
+      console.error("Failed to fetch sessions:", error);
+      res.status(500).json({ message: "Failed to fetch sessions" });
+    }
+  });
+
+  app.post("/api/user/activity", requireAuth, async (req: any, res) => {
+    try {
+      await storage.updateUserActivity(req.user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to update activity:", error);
+      res.status(500).json({ message: "Failed to update activity" });
     }
   });
 

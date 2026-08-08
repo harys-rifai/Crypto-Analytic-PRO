@@ -4,10 +4,10 @@ A comprehensive Indonesian investment platform for tracking **Cryptocurrency**, 
 
 ## Asset Classes
 
-- **Cryptocurrency** — Real-time prices, charts, watchlists, and price alerts
-- **Reksa Dana (Mutual Funds)** — NAV tracking, historical performance, and fund watchlists
-- **Stocks** — Real-time prices, charts, watchlists, and price alerts
-- **Gold** — Real-time prices, charts, watchlists, and price alerts
+- **Cryptocurrency** — Real-time prices, interactive charts, watchlists, and price alerts
+- **Reksa Dana (Mutual Funds)** — NAV tracking, historical performance charts, fund watchlists, and portfolio allocation
+- **Stocks** — IDX real-time prices, interactive charts, watchlists, and price alerts
+- **Gold** — Real-time spot prices, interactive charts, watchlists, and price alerts
 
 ## Features
 
@@ -217,3 +217,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - **Favicon URL Fix** — Corrected all Google favicon URLs in `server/routes.ts` from `?size=128` to `&sz=128` to match Google's actual API parameter.
 - **Mock Data Timestamp Fix** — Fixed erroneous `* 24` multiplier in stock and gold history API mock data generation that was producing incorrect timestamps relative to the requested time range.
 - **Batch Insert Infrastructure** — Added `addStockHistoryBatch`, `addFundHistoryBatch`, and `addGoldHistoryBatch` methods to all storage implementations (`storage-mem.ts`, `storage-sqlite.ts`, `storage-pg.ts`) to support efficient bulk seeding of 5 years of historical data.
+- **User Session Tracking** — Added `user_sessions` table and extended `users` table with `last_login`, `last_activity`, `login_count`, `created_at`, and `updated_at` fields. Login/register routes now record browser, OS, device, IP address, and user agent per session. New API endpoints: `GET /api/user/sessions` and `POST /api/user/activity`. PostgreSQL migration applied via `migrations/add_user_session_tracking.sql`.

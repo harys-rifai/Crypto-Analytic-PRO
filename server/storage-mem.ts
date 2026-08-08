@@ -33,7 +33,16 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const now = new Date();
+    const user: User = { 
+      ...insertUser, 
+      id,
+      created_at: now,
+      updated_at: now,
+      last_login: null,
+      last_activity: null,
+      login_count: 0
+    };
     this.users.set(id, user);
     return user;
   }
@@ -67,11 +76,20 @@ export class MemStorage implements IStorage {
 
   async createUserSession(insertSession: InsertUserSession): Promise<UserSession> {
     const id = randomUUID();
-    const session: UserSession = { 
-      ...insertSession, 
-      id, 
-      session_start: new Date(),
-      is_active: true 
+    const now = new Date();
+    const session: UserSession = {
+      id,
+      userId: insertSession.userId,
+      browser: insertSession.browser ?? null,
+      os: insertSession.os ?? null,
+      device: insertSession.device ?? null,
+      ip_address: insertSession.ip_address ?? null,
+      country: insertSession.country ?? null,
+      city: insertSession.city ?? null,
+      user_agent: insertSession.user_agent ?? null,
+      session_start: now,
+      session_end: null,
+      is_active: true,
     };
     this.userSessions.set(id, session);
     return session;

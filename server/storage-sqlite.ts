@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import { randomUUID } from "crypto";
 import { 
-  type User, type InsertUser, type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate
+  type User, type InsertUser, type Cryptocurrency, type InsertCryptocurrency, type Watchlist, type InsertWatchlist, type PriceAlert, type InsertPriceAlert, type PriceHistory, type InsertPriceHistory, type MutualFund, type InsertMutualFund, type MutualFundHistory, type InsertMutualFundHistory, type FundWatchlist, type InsertFundWatchlist, type Stock, type InsertStock, type StockHistory, type InsertStockHistory, type StockWatchlist, type InsertStockWatchlist, type Gold, type InsertGold, type GoldHistory, type InsertGoldHistory, type GoldWatchlist, type InsertGoldWatchlist, type Portfolio, type InsertPortfolio, type CurrencyRate, type InsertCurrencyRate, type UserSession, type InsertUserSession
 } from "@shared/schema";
 
 const db = new Database("localdb.sqlite");
@@ -13,7 +13,30 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    last_login TEXT,
+    last_activity TEXT,
+    login_count INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_sessions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    browser TEXT,
+    os TEXT,
+    device TEXT,
+    ip_address TEXT,
+    country TEXT,
+    city TEXT,
+    user_agent TEXT,
+    session_start TEXT DEFAULT (datetime('now')),
+    session_end TEXT,
+    is_active INTEGER DEFAULT 1,
+    FOREIGN KEY (user_id) REFERENCES users(id)
   )
 `);
 
@@ -295,9 +318,42 @@ export class SqliteStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    db.prepare("INSERT INTO users (id, username, password) VALUES (?, ?, ?)").run(id, insertUser.username, insertUser.password);
+    const now = new Date().toISOString();
+    db.prepare("INSERT INTO users (id, username, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?)").run(id, insertUser.username, insertUser.password, now, now);
     const user = await this.getUser(id);
     return user!;
+  }
+
+  async updateUserActivity(userId: string): Promise<User | undefined> {
+    const now = new Date().toISOString();
+    db.prepare("UPDATE users SET last_activity = ?, updated_at = ? WHERE id = ?").run(now, now, userId);
+    return await this.getUser(userId);
+  }
+
+  async updateUserLogin(userId: string): Promise<User | undefined> {
+    const now = new Date().toISOString();
+    db.prepare("UPDATE users SET last_login = ?, last_activity = ?, login_count = login_count + 1, updated_at = ? WHERE id = ?").run(now, now, now, userId);
+    return await this.getUser(userId);
+  }
+
+  async getUserSessions(userId: string): Promise<UserSession[]> {
+    const rows = db.prepare("SELECT * FROM user_sessions WHERE user_id = ? ORDER BY session_start DESC").all(userId) as UserSession[];
+    return rows;
+  }
+
+  async createUserSession(insertSession: InsertUserSession): Promise<UserSession> {
+    const id = randomUUID();
+    const now = new Date().toISOString();
+    db.prepare("INSERT INTO user_sessions (id, user_id, browser, os, device, ip_address, country, city, user_agent, session_start, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)").run(id, insertSession.userId, insertSession.browser, insertSession.os, insertSession.device, insertSession.ip_address, insertSession.country, insertSession.city, insertSession.user_agent, now);
+    const row = db.prepare("SELECT * FROM user_sessions WHERE id = ?").get(id) as UserSession;
+    return row;
+  }
+
+  async endUserSession(sessionId: string): Promise<UserSession | undefined> {
+    const now = new Date().toISOString();
+    db.prepare("UPDATE user_sessions SET session_end = ?, is_active = 0 WHERE id = ?").run(now, sessionId);
+    const row = db.prepare("SELECT * FROM user_sessions WHERE id = ?").get(sessionId) as UserSession | undefined;
+    return row;
   }
 
   async getCryptocurrencies(limit = 100): Promise<Cryptocurrency[]> {
